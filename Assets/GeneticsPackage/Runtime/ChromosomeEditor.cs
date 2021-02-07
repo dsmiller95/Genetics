@@ -78,7 +78,7 @@ namespace Genetics
 
             return new Chromosome
             {
-                allGeneData = GenePivot(pivotedGeneData.Pivot())
+                allGeneData = GenePivot(pivotedGeneData)
             };
         }
     }
