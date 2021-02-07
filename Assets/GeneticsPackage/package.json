@@ -1,12 +1,12 @@
 {
   "name": "com.dman.genetics",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Genetics",
   "description": "Design and breed Genomes together",
   "unity": "2020.1",
   "dependencies": {
     "com.dman.utilities": "0.1.0",
-	"com.dman.object-sets": "0.1.0"
+    "com.dman.object-sets": "0.1.0"
   },
   "author": {
     "name": "Dan Miller",
