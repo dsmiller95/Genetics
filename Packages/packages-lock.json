@@ -1,14 +1,14 @@
 {
   "dependencies": {
     "com.dman.object-sets": {
-      "version": "0.1.0",
+      "version": "0.1.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://package.openupm.com"
     },
     "com.dman.utilities": {
-      "version": "0.1.0",
+      "version": "0.3.3",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
