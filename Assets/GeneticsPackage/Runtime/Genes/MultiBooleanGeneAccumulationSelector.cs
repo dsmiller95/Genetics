@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Plants
+namespace Genetics.Genes
 {
     /// <summary>
     /// Will output a single whole number value, based on the result of combining multiple boolean genes together. For ever True gene,
@@ -47,7 +47,7 @@ namespace Assets.Scripts.Plants
             yield return floatOutput;
         }
 
-        public override SingleGene[] GenerateGeneData()
+        public override SingleGene[] GenerateGeneData(System.Random random)
         {
             return new SingleGene[0];
         }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Plants
+namespace Genetics.Genes
 {
     /// <summary>
     /// Will output a single whole number value, based on the result of combining multiple boolean genes together. For ever True gene,
@@ -34,16 +34,11 @@ namespace Assets.Scripts.Plants
                 var dominantValue = dominantValues[geneIndex];
                 bool geneOutput;
                 if (dominantValue == true)
-                    geneOutput = gene.chromosomalCopies.Any(x => EvaluateSingleGene(x));
+                    geneOutput = gene.chromosomalCopies.Any(x => HammingUtilities.EvenSplitHammingWeight(x.Value));
                 else
-                    geneOutput = gene.chromosomalCopies.All(x => EvaluateSingleGene(x));
+                    geneOutput = gene.chromosomalCopies.All(x => HammingUtilities.EvenSplitHammingWeight(x.Value));
                 editorHandle.SetGeneticDriverData(switchOutput, geneOutput);
             }
-        }
-
-        private bool EvaluateSingleGene(SingleGene gene)
-        {
-            return MendelianBooleanSwitch.HammingWeight(gene.Value) > 32;
         }
 
         public override IEnumerable<GeneticDriver> GetInputs()
@@ -56,34 +51,19 @@ namespace Assets.Scripts.Plants
             return outputDrivers;
         }
 
-        public override SingleGene[] GenerateGeneData()
+        public override SingleGene[] GenerateGeneData(System.Random random)
         {
             var genes = new SingleGene[GeneSize];
             for (int i = 0; i < genes.Length; i++)
             {
                 genes[i] = new SingleGene
                 {
-                    Value = GenerateRandomWithUniformHammingWeightDistribution()
+                    Value = HammingUtilities.RandomEvenHammingWeight(random)
                 };
             }
             return genes;
         }
 
-        private ulong GenerateRandomWithUniformHammingWeightDistribution()
-        {
-            ulong newGene = 0;
-            var randomGen = new System.Random(Random.Range(int.MinValue, int.MaxValue));
-            var binaryProportionalChance = randomGen.NextDouble();
-            for (int i = 0; i < sizeof(ulong) * 8; i++)
-            {
-                var nextBit = randomGen.NextDouble() > binaryProportionalChance;
-                if (nextBit)
-                {
-                    newGene |= ((ulong)1) << i;
-                }
-            }
-            return newGene;
-        }
 
         private void OnValidate()
         {

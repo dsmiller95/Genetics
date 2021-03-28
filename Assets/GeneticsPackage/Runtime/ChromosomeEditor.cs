@@ -63,12 +63,12 @@ namespace Genetics
             return allGeneData.Select(geneCopies => geneCopies.chromosomalCopies[Random.Range(0, chromosomeCopies)]).ToArray();
         }
 
-        public static Chromosome GetBaseGenes(ChromosomeEditor geneGenerators)
+        public static Chromosome GetBaseGenes(ChromosomeEditor geneGenerators, System.Random random)
         {
             var pivotedGeneData = new SingleGene[geneGenerators.chromosomeCopies][];
             for (int chromosomeCopy = 0; chromosomeCopy < pivotedGeneData.Length; chromosomeCopy++)
             {
-                pivotedGeneData[chromosomeCopy] = geneGenerators.genes.SelectMany(x => x.GenerateGeneData()).ToArray();
+                pivotedGeneData[chromosomeCopy] = geneGenerators.genes.SelectMany(x => x.GenerateGeneData(random)).ToArray();
             }
 
             return new Chromosome
@@ -84,9 +84,9 @@ namespace Genetics
         public GeneEditor[] genes;
         public int chromosomeCopies = 2;
 
-        public Chromosome GenerateChromosomeData()
+        public Chromosome GenerateChromosomeData(System.Random random)
         {
-            return Chromosome.GetBaseGenes(this);
+            return Chromosome.GetBaseGenes(this, random);
         }
 
         private int ChromosomeGeneticSize()

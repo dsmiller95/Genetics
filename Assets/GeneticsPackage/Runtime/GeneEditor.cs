@@ -42,20 +42,20 @@ namespace Genetics
         ///     equal to <see cref="GeneSize"/>. Second dimension is duplicate copies of the chromosome</param>
         public abstract void Evaluate(CompiledGeneticDrivers editorHandle, GeneCopies[] data);
 
-        public virtual SingleGene[] GenerateGeneData()
+        public virtual SingleGene[] GenerateGeneData(System.Random randomProvider)
         {
             var result = new SingleGene[GeneSize];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = RandomGene();
+                result[i] = RandomGene(randomProvider);
             }
             return result;
         }
 
-        private SingleGene RandomGene()
+        private SingleGene RandomGene(System.Random randomProvider)
         {
-            ulong part1 = ((ulong)Random.Range(int.MinValue, int.MaxValue)) << 32;
-            ulong part2 = (ulong)Random.Range(int.MinValue, int.MaxValue);
+            ulong part1 = ((ulong)randomProvider.Next(int.MinValue, int.MaxValue)) << 32;
+            ulong part2 = (ulong)randomProvider.Next(int.MinValue, int.MaxValue);
             return new SingleGene
             {
                 Value = part1 | part2

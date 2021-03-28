@@ -9,11 +9,11 @@ namespace Genetics
     {
         public Chromosome[] allChromosomes;
 
-        public static Genome GetBaseGenes(ChromosomeEditor[] chromosomeEditors)
+        public static Genome GetBaseGenes(ChromosomeEditor[] chromosomeEditors, System.Random random)
         {
             return new Genome
             {
-                allChromosomes = chromosomeEditors.Select(x => x.GenerateChromosomeData()).ToArray()
+                allChromosomes = chromosomeEditors.Select(x => x.GenerateChromosomeData(random)).ToArray()
             };
         }
 
@@ -46,11 +46,11 @@ namespace Genetics
     {
         public ChromosomeEditor[] chromosomes;
 
-        public GeneEditor[] geneInterpretors;
+        public GeneEditor[] geneInterpretors = new GeneEditor[0];
 
-        public Genome GenerateBaseGenomeData()
+        public Genome GenerateBaseGenomeData(System.Random random)
         {
-            return Genome.GetBaseGenes(chromosomes);
+            return Genome.GetBaseGenes(chromosomes, random);
         }
 
         public CompiledGeneticDrivers CompileGenome(Genome genomeData)

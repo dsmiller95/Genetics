@@ -1,5 +1,4 @@
 ﻿using Genetics;
-using Genetics.Genes;
 using Genetics.GeneticDrivers;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +21,7 @@ namespace Assets.Scripts.Plants
         {
             if (editorHandle.TryGetGeneticData(floatOutput, out var _))
             {
-                Debug.LogWarning($"Overwriting already set genetic driver {floatOutput} in gene {this}.");
+                Debug.LogWarning($"Overwriting already set genetic driver {floatOutput} in gene {this}.lyzer");
             }
             var gene = data[0];
             double outputValue;
@@ -38,7 +37,7 @@ namespace Assets.Scripts.Plants
         }
         private double EvaluateSingleGene(SingleGene gene)
         {
-            var weight = MendelianBooleanSwitch.HammingWeight(gene.Value);
+            var weight = HammingUtilities.HammingWeight(gene.Value);
             var adjusted = (weight / 64d) * (rangeMax - rangeMin) + rangeMin;
             return adjusted;
         }
@@ -54,19 +53,10 @@ namespace Assets.Scripts.Plants
             yield return floatOutput;
         }
 
-        public override SingleGene[] GenerateGeneData()
+        public override SingleGene[] GenerateGeneData(System.Random randomGen)
         {
-            ulong newGene = 0;
-            var randomGen = new System.Random(Random.Range(int.MinValue, int.MaxValue));
-            var binaryProportionalChance = randomGen.NextDouble();
-            for (int i = 0; i < sizeof(ulong) * 8; i++)
-            {
-                var nextBit = randomGen.NextDouble() > binaryProportionalChance;
-                if (nextBit)
-                {
-                    newGene |= ((ulong)1) << i;
-                }
-            }
+            ulong newGene = HammingUtilities.RandomEvenHammingWeight(randomGen);
+
             return new SingleGene[] { new SingleGene { Value = newGene } };
         }
     }

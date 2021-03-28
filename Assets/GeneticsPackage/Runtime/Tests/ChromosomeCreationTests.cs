@@ -18,7 +18,7 @@ namespace Genetics
             var singleGene = ScriptableObject.CreateInstance<MendelianBooleanSwitch>();
             chromosome.genes = new GeneEditor[] { singleGene };
 
-            var newGene = chromosome.GenerateChromosomeData();
+            var newGene = chromosome.GenerateChromosomeData(new System.Random(0));
 
             Assert.AreEqual(1, newGene.allGeneData.Length);
             Assert.AreEqual(2, newGene.allGeneData[0].chromosomalCopies.Length);
@@ -35,7 +35,7 @@ namespace Genetics
             ScriptableObject.CreateInstance<MendelianBooleanSwitch>(),
             ScriptableObject.CreateInstance<MendelianBooleanSwitch>()};
 
-            var newGene = chromosome.GenerateChromosomeData();
+            var newGene = chromosome.GenerateChromosomeData(new System.Random(0));
 
             Assert.AreEqual(3, newGene.allGeneData.Length);
             Assert.AreEqual(2, newGene.allGeneData[0].chromosomalCopies.Length);

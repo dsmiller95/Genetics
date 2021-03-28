@@ -4,7 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Genetics"
+        "Genetics",
+        "ObjectSets"
     ],
     "includePlatforms": [
         "Editor"
