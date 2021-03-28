@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Plants
+namespace Genetics.Genes
 {
     [CreateAssetMenu(fileName = "MendelianFloatGene", menuName = "Genetics/Genes/MendelianFloat", order = 2)]
     public class MendelianFloatGene : GeneEditor
