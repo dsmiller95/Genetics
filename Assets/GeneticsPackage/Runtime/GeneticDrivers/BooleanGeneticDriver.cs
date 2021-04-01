@@ -9,5 +9,19 @@ namespace Genetics.GeneticDrivers
         public string outcomeWhenTrue;
         [Tooltip("Used to describe the state of the driver in the UI")]
         public string outcomeWhenFalse;
+        public override string DescribeState(bool state)
+        {
+            return state ? outcomeWhenTrue : outcomeWhenFalse;
+        }
+        public override string DescribeRange(bool min, bool max)
+        {
+            if(min == max)
+            {
+                return DescribeState(min);
+            }else
+            {
+                return outcomeWhenTrue + " or " + outcomeWhenFalse;
+            }
+        }
     }
 }

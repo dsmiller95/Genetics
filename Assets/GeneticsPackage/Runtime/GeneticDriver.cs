@@ -8,5 +8,7 @@ namespace Genetics
     }
     public abstract class GeneticDriver<T> : GeneticDriver
     {
+        public abstract string DescribeState(T state);
+        public abstract string DescribeRange(T min, T max);
     }
 }
