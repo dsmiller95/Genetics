@@ -158,7 +158,7 @@ namespace Genetics
             boolGenes.outputDrivers = boolDrivers;
             boolGenes.dominantValues = boolDrivers.Select(x => false).ToArray();
 
-            var floatOutput = FloatDriver();
+            var floatOutput = DiscreteFloatDriver();
             var boolInterpretor = ScriptableObject.CreateInstance<MultiBooleanGeneAccumulationSelector>();
             boolInterpretor.booleanInputs = boolDrivers;
             boolInterpretor.floatOutput = floatOutput;
@@ -202,7 +202,7 @@ namespace Genetics
             boolGenes.outputDrivers = boolDrivers;
             boolGenes.dominantValues = boolDrivers.Select((x, i) => (i % 2) == 0).ToArray();
 
-            var floatOutput = FloatDriver();
+            var floatOutput = DiscreteFloatDriver();
             var boolInterpretor = ScriptableObject.CreateInstance<MultiBooleanGeneAccumulationSelector>();
             boolInterpretor.booleanInputs = boolDrivers;
             boolInterpretor.floatOutput = floatOutput;
@@ -249,7 +249,7 @@ namespace Genetics
             boolGenes.outputDrivers = boolDrivers;
             boolGenes.dominantValues = boolDrivers.Select((x, i) => (i % 2) == 0).ToArray();
 
-            var floatOutput = FloatDriver();
+            var floatOutput = DiscreteFloatDriver();
             var boolInterpretor = ScriptableObject.CreateInstance<MultiBooleanGeneAccumulationSelector>();
             boolInterpretor.booleanInputs = boolDrivers;
             boolInterpretor.floatOutput = floatOutput;
@@ -412,9 +412,18 @@ namespace Genetics
             currentGeneIndex++;
             return boolDriver;
         }
+
+        private DiscreteFloatGeneticDriver DiscreteFloatDriver()
+        {
+            var floatDriver = ScriptableObject.CreateInstance<DiscreteFloatGeneticDriver>();
+            floatDriver.DriverName = currentGeneIndex.ToString();
+            floatDriver.myId = currentGeneIndex;
+            currentGeneIndex++;
+            return floatDriver;
+        }
         private FloatGeneticDriver FloatDriver()
         {
-            var floatDriver = ScriptableObject.CreateInstance<FloatGeneticDriver>();
+            var floatDriver = ScriptableObject.CreateInstance<ContinuousFloatGeneticDriver>();
             floatDriver.DriverName = currentGeneIndex.ToString();
             floatDriver.myId = currentGeneIndex;
             currentGeneIndex++;

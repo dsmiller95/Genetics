@@ -17,7 +17,7 @@ namespace Genetics.GeneticDrivers
 
         public override bool FallsInRange(float min, float max, float value)
         {
-            return value > min && value < max;
+            return value >= min && value <= max;
         }
     }
 }
