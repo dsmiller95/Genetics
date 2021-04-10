@@ -12,8 +12,9 @@ namespace Genetics.Genes
         public FloatGeneticDriver floatOutput;
         public override int GeneSize => 1;
 
-        [Tooltip("When true, the highest value out of the gene copies will be used. When false, the lowest value is used.")]
-        public bool higherValueDominant;
+        [Tooltip("The point between the min and max of the range to be treated as dominant. If .5, every value closer to the average of the range will be dominant over those farther away")]
+        [Range(0, 1)]
+        public float relativeDominantRange = 0;
         public float rangeMin = 0;
         public float rangeMax = 1;
 
@@ -24,16 +25,21 @@ namespace Genetics.Genes
                 Debug.LogWarning($"Overwriting already set genetic driver {floatOutput} in gene {this}.lyzer");
             }
             var gene = data[0];
-            double outputValue;
-            if (higherValueDominant)
+
+            var minimumDist = float.MaxValue;
+            var dominantValue = 0d;
+            foreach (var chromosomeCopy in gene.chromosomalCopies)
             {
-                outputValue = gene.chromosomalCopies.Max(x => EvaluateSingleGene(x));
+                var value = EvaluateSingleGene(chromosomeCopy);
+                var relativeVal = (value - rangeMin) / (rangeMax - rangeMin);
+                var dist = Mathf.Abs((float)(relativeVal - relativeDominantRange));
+                if(dist < minimumDist)
+                {
+                    minimumDist = dist;
+                    dominantValue = value;
+                }
             }
-            else
-            {
-                outputValue = gene.chromosomalCopies.Min(x => EvaluateSingleGene(x));
-            }
-            editorHandle.SetGeneticDriverData(floatOutput, (float)outputValue);
+            editorHandle.SetGeneticDriverData(floatOutput, (float)dominantValue);
         }
         private double EvaluateSingleGene(SingleGene gene)
         {

@@ -359,7 +359,7 @@ namespace Genetics
             floatGene.floatOutput = floatDriver;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
-            floatGene.higherValueDominant = true;
+            floatGene.relativeDominantRange = 1;
 
             var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
             chromosome.chromosomeCopies = 2;

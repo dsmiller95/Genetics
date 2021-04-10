@@ -66,7 +66,7 @@ namespace Genetics
             floatGene.floatOutput = float1;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
-            floatGene.higherValueDominant = true;
+            floatGene.relativeDominantRange = 1;
 
             var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
             chromosome.chromosomeCopies = 1;
@@ -116,7 +116,7 @@ namespace Genetics
             floatGene.floatOutput = float1;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
-            floatGene.higherValueDominant = true;
+            floatGene.relativeDominantRange = 1;
 
             var boolGene = ScriptableObject.CreateInstance<MendelianBooleanSwitch>();
             var bool1 = BoolDriver();
@@ -173,7 +173,7 @@ namespace Genetics
             floatGene.floatOutput = float1;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
-            floatGene.higherValueDominant = true;
+            floatGene.relativeDominantRange = 1;
             var boolGene = ScriptableObject.CreateInstance<MendelianBooleanSwitch>();
             var bool1 = BoolDriver();
             boolGene.switchOutput = bool1;
@@ -229,7 +229,7 @@ namespace Genetics
             floatGene.floatOutput = float1;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
-            floatGene.higherValueDominant = true;
+            floatGene.relativeDominantRange = 1;
 
             var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
             chromosome.chromosomeCopies = 2;
