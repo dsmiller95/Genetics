@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Genetics.GeneSummarization;
+using UnityEngine;
 
 namespace Genetics.GeneticDrivers
 {
@@ -22,6 +23,20 @@ namespace Genetics.GeneticDrivers
             {
                 return outcomeWhenTrue + " or " + outcomeWhenFalse;
             }
+        }
+
+        public override AbstractSummary GetSummarizer()
+        {
+            return new DiscretSummary(new string[] { outcomeWhenFalse, outcomeWhenTrue });
+        }
+
+        public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)
+        {
+            if(!valueSet.TryGetGeneticData(this, out var value))
+            {
+                Debug.LogError("no value found for driver. Need to capture uncertainty somehow");
+            }
+            summarizer.ClassifyValue(value ? 1f : 0);
         }
     }
 }

@@ -1,12 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Genetics.GeneticDrivers
 {
+    [Serializable]
     public class CompiledGeneticDrivers
     {
         private Dictionary<string, object> geneticDriverValues = new Dictionary<string, object>();
 
         private bool writable = true;
+
+        public CompiledGeneticDrivers()
+        {
+        }
+
         /// <summary>
         /// Lock the genetic driver set, indicating that it is fully compiled and cannot be changed
         /// </summary>
@@ -35,5 +44,36 @@ namespace Genetics.GeneticDrivers
             }
             geneticDriverValues[driver.DriverName] = value;
         }
+
+        #region Serialization
+
+        [Serializable]
+        private class DriverValue
+        {
+            public string Key;
+            public object Value;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            var seriaizedDrivers = geneticDriverValues.Select(x => new DriverValue
+            {
+                Key = x.Key,
+                Value = x.Value
+            }).ToArray();
+
+            info.AddValue("driverValues", seriaizedDrivers);
+        }
+
+
+        // The special constructor is used to deserialize values.
+        private CompiledGeneticDrivers(SerializationInfo info, StreamingContext context)
+        {
+            var seriaizedDrivers = (DriverValue[])info.GetValue("driverValues", typeof(DriverValue[]));
+            this.geneticDriverValues = seriaizedDrivers.ToDictionary(x => x.Key, x => x.Value);
+            this.writable = false;
+        }
+
+        #endregion
     }
 }

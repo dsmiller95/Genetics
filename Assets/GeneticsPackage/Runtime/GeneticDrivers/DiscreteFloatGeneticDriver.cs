@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Genetics.GeneSummarization;
+using System;
 using System.Text;
 using UnityEngine;
 
@@ -56,6 +57,20 @@ namespace Genetics.GeneticDrivers
             result.Append("or ");
             result.Append(possibleStates[max]);
             return result.ToString();
+        }
+
+        public override AbstractSummary GetSummarizer()
+        {
+            return new DiscretSummary(possibleStates);
+        }
+
+        public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)
+        {
+            if (!valueSet.TryGetGeneticData(this, out var value))
+            {
+                Debug.LogError("no value found for driver. Need to capture uncertainty somehow");
+            }
+            summarizer.ClassifyValue(value);
         }
     }
 }
