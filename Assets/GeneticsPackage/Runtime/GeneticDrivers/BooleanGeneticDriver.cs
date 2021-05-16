@@ -32,9 +32,10 @@ namespace Genetics.GeneticDrivers
 
         public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)
         {
-            if(!valueSet.TryGetGeneticData(this, out var value))
+            if(valueSet == null || !valueSet.TryGetGeneticData(this, out var value))
             {
-                Debug.LogError("no value found for driver. Need to capture uncertainty somehow");
+                summarizer.invalidClassifications++;
+                return;
             }
             summarizer.ClassifyValue(value ? 1f : 0);
         }

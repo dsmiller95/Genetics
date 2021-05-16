@@ -43,6 +43,33 @@ namespace Genetics
                 new int[] { 3, 2 });
         }
         [Test]
+        public void SummarizesBooleanGeneDriversWithUncertainty()
+        {
+            currentGeneIndex = 0;
+            var boolDriver = BoolDriver();
+
+            var compiledValues = Enumerable.Repeat(0, 5)
+                .Select(x => new CompiledGeneticDrivers())
+                .ToArray();
+
+            compiledValues[0].SetGeneticDriverData(boolDriver, false);
+            compiledValues[1].SetGeneticDriverData(boolDriver, true);
+            compiledValues[2].SetGeneticDriverData(boolDriver, true);
+
+            compiledValues[4] = null;
+
+
+            var summaries = new GeneticDriverSummarySet(
+                new[] { boolDriver },
+                compiledValues);
+
+
+            AssertSequenceEqual(
+                summaries.summaries["0"].allClassifications.Select(x => x.totalClassifications),
+                new int[] { 1, 2 });
+            Assert.AreEqual(2, summaries.summaries["0"].invalidClassifications);
+        }
+        [Test]
         public void SummarizesDiscreteGeneDrivers()
         {
             currentGeneIndex = 0;

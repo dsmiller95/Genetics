@@ -14,6 +14,7 @@ namespace Genetics.GeneSummarization {
             public int totalClassifications;
         }
         public BucketClassification[] allClassifications;
+        public int invalidClassifications = 0;
 
         protected AbstractSummary()
         {
@@ -36,6 +37,7 @@ namespace Genetics.GeneSummarization {
             if (index >= allClassifications.Length)
             {
                 Debug.LogError("value is outside of initialized range of values");
+                invalidClassifications++;
                 return;
             }
             allClassifications[index].totalClassifications++;
