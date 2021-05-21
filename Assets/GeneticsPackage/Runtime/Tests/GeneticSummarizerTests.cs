@@ -147,6 +147,38 @@ namespace Genetics
                 new int[] { 4, 1 });
         }
 
+
+        [Test]
+        public void SummarizesFloatingGeneDriversIntoContinuousBuckets()
+        {
+
+            var summary = new ContinuousSummary(0, 5, 5);
+            foreach (var value in new[] { 1f, 1f, 1.5f, 2f, 3.75f, 4f, 4.25f })
+            {
+                summary.ClassifyValue(value);
+            }
+
+            AssertSequenceEqual(
+                summary.sortedValues.Keys,
+                new float[] { 1f, 1.5f, 2f, 3.75f, 4f, 4.25f });
+            AssertSequenceEqual(
+                summary.sortedValues.Values,
+                new int[] { 2, 1, 1, 1, 1, 1 });
+
+            var continuosRender = summary.RenderContinuousHistogram(5 * 8);
+
+            AssertSequenceEqual(
+                continuosRender,
+                new float[]
+                {
+                    0, 0, 0, 0, 2, 2, 2, 2, // 1
+                    3, 3, 3, 3, 2, 2, 2, 2, // 2
+                    1, 1, 1, 1, 0, 0, 0, 0, // 3
+                    0, 0, 1, 1, 2, 2, 3, 3, // 4
+                    3, 3, 2, 2, 1, 1, 0, 0, // 5
+                });
+        }
+
         private static void AssertSequenceEqual<T>(IEnumerable<T> actual, IEnumerable<T> expected)
         {
             if (!actual.SequenceEqual(expected))

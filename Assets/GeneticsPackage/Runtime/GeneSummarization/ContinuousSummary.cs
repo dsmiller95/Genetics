@@ -24,6 +24,30 @@ namespace Genetics.GeneSummarization
             sortedValues = new SortedList<float, int>();
         }
 
+        public float[] RenderContinuousHistogram(int outputSpaceSize)
+        {
+            var outputSpace = new float[outputSpaceSize];
+
+            var sampleSpaceToOutputSpace = outputSpaceSize / (maxValue - minValue);
+
+            var outputBucketSize = bucketSize * sampleSpaceToOutputSpace;
+
+            foreach (var sampleValues in sortedValues)
+            {
+                float intensity = sampleValues.Value;
+                var centerInOutput = (sampleValues.Key - minValue) * sampleSpaceToOutputSpace;
+                var min = (int)(centerInOutput - outputBucketSize / 2f);
+                var max = (int)(centerInOutput + outputBucketSize / 2f);
+
+                for (int i = min; i < max; i++)
+                {
+                    outputSpace[i] += intensity;
+                }
+            }
+
+            return outputSpace;
+        }
+
         public override void ClassifyValue(float value)
         {
             if (sortedValues.ContainsKey(value))
