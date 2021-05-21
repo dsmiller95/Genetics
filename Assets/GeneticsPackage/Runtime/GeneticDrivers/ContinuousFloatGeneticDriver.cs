@@ -8,6 +8,8 @@ namespace Genetics.GeneticDrivers
     {
         public float minValue;
         public float maxValue;
+        [Tooltip("when less that or equal to 0 will default to a bucket size close to 1")]
+        public int summaryBucketCount = 0;
         public override string DescribeState(float state)
         {
             return this.DriverName + $": {state:F2}";
@@ -25,7 +27,7 @@ namespace Genetics.GeneticDrivers
 
         public override AbstractSummary GetSummarizer()
         {
-            return new ContinuousSummary(minValue, maxValue, Mathf.FloorToInt(maxValue - minValue));
+            return new ContinuousSummary(minValue, maxValue, summaryBucketCount <= 0 ? Mathf.FloorToInt(maxValue - minValue) : summaryBucketCount);
         }
 
         public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)

@@ -33,13 +33,13 @@ namespace Genetics
                 compiledValues);
 
             AssertSequenceEqual(
-                summaries.summaries["0"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["0"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 5, 0 });
             AssertSequenceEqual(
-                summaries.summaries["1"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["1"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 0, 5 });
             AssertSequenceEqual(
-                summaries.summaries["2"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["2"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 3, 2 });
         }
         [Test]
@@ -65,7 +65,7 @@ namespace Genetics
 
 
             AssertSequenceEqual(
-                summaries.summaries["0"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["0"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 1, 2 });
             Assert.AreEqual(2, summaries.summaries["0"].invalidClassifications);
         }
@@ -93,13 +93,13 @@ namespace Genetics
                 compiledValues);
 
             AssertSequenceEqual(
-                summaries.summaries["0"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["0"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 5, 0, 0, 0 });
             AssertSequenceEqual(
-                summaries.summaries["1"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["1"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 1, 1, 1, 2 });
             AssertSequenceEqual(
-                summaries.summaries["2"].allClassifications.Select(x => x.totalClassifications),
+                (summaries.summaries["2"] as DiscretSummary).allClassifications.Select(x => x.totalClassifications),
                 new int[] { 0, 2, 3, 0 });
         }
         [Test]
@@ -113,11 +113,11 @@ namespace Genetics
                 .ToArray();
 
             WriteValuesToGene(compiledValues, floatingDrivers[0],
-                new[] { 1f, 1.5f, 1.9f, 2.0f, 2.1f });
+                new[] { 1f, 2.1f, 1.5f, 1.9f, 2.0f });
             WriteValuesToGene(compiledValues, floatingDrivers[1],
-                new[] { 1f, 2f, 3f, 4f, 4.9f });
+                new[] { 1f, 2f, 4.9f, 4f, 3f });
             WriteValuesToGene(compiledValues, floatingDrivers[2],
-                new[] { 1f, 1f, 1f, 1f, 4f });
+                new[] { 1f, 4f, 1f, 1f, 1f });
 
             var summaries = new GeneticDriverSummarySet(
                 floatingDrivers
@@ -126,14 +126,25 @@ namespace Genetics
                 compiledValues);
 
             AssertSequenceEqual(
-                summaries.summaries["0"].allClassifications.Select(x => x.totalClassifications),
-                new int[] { 3, 2, 0, 0 });
+                (summaries.summaries["0"] as ContinuousSummary).sortedValues.Keys,
+                new float[] { 1f, 1.5f, 1.9f, 2.0f, 2.1f });
             AssertSequenceEqual(
-                summaries.summaries["1"].allClassifications.Select(x => x.totalClassifications),
-                new int[] { 1, 1, 1, 2 });
+                (summaries.summaries["0"] as ContinuousSummary).sortedValues.Values,
+                new int[] { 1, 1, 1, 1, 1 });
+
             AssertSequenceEqual(
-                summaries.summaries["2"].allClassifications.Select(x => x.totalClassifications),
-                new int[] { 4, 0, 0, 1 });
+                (summaries.summaries["1"] as ContinuousSummary).sortedValues.Keys,
+                new float[] { 1f, 2f, 3f, 4f, 4.9f });
+            AssertSequenceEqual(
+                (summaries.summaries["1"] as ContinuousSummary).sortedValues.Values,
+                new int[] { 1, 1, 1, 1, 1 });
+
+            AssertSequenceEqual(
+                (summaries.summaries["2"] as ContinuousSummary).sortedValues.Keys,
+                new float[] { 1f, 4f });
+            AssertSequenceEqual(
+                (summaries.summaries["2"] as ContinuousSummary).sortedValues.Values,
+                new int[] { 4, 1 });
         }
 
         private static void AssertSequenceEqual<T>(IEnumerable<T> actual, IEnumerable<T> expected)

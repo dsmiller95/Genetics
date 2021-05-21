@@ -26,7 +26,16 @@ namespace Genetics.GeneSummarization
                     driver.SummarizeValue(summarizer, valueSet);
                 }
             }
-            Debug.Log("done");
+        }
+
+        public override string ToString()
+        {
+            var summary = new StringBuilder();
+            foreach (var sum in summaries)
+            {
+                summary.Append($"{sum.Key}: {sum.Value}\n");
+            }
+            return summary.ToString();
         }
     }
 }

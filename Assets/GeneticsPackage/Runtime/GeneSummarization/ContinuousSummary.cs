@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Genetics.GeneSummarization
@@ -9,6 +10,8 @@ namespace Genetics.GeneSummarization
         private float minValue;
         private float maxValue;
 
+        public SortedList<float, int> sortedValues;
+
         public ContinuousSummary(
             float minValue,
             float maxValue,
@@ -18,16 +21,18 @@ namespace Genetics.GeneSummarization
             this.maxValue = maxValue;
             bucketSize = (maxValue - minValue) / bucketNumber;
 
-            InitializeBuckets(
-                Enumerable.Range(0, bucketNumber)
-                .Select(x => $"{minValue + x * bucketSize} - {minValue + (x + 1) * bucketSize}")
-                );
+            sortedValues = new SortedList<float, int>();
         }
 
         public override void ClassifyValue(float value)
         {
-            var bucketIndex = Mathf.FloorToInt((value - minValue) / bucketSize);
-            base.ClassifyValue(bucketIndex);
+            if (sortedValues.ContainsKey(value))
+            {
+                sortedValues[value] += 1;
+            }else
+            {
+                sortedValues[value] = 1;
+            }
         }
     }
 }
