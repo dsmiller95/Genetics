@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -24,7 +25,15 @@ namespace Genetics.GeneSummarization
             sortedValues = new SortedList<float, int>();
         }
 
-        public float[] RenderContinuousHistogram(int outputSpaceSize)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="outputSpaceSize">the length of the output array samples</param>
+        /// <param name="sampleIntensityCurve">a function which takes in a number from 0 to 1, and returns a remapped intensity value based on distance from the value</param>
+        /// <returns></returns>
+        public float[] RenderContinuousHistogram(
+            int outputSpaceSize,
+            Func<float, float> sampleIntensityCurve)
         {
             var outputSpace = new float[outputSpaceSize];
 
@@ -41,7 +50,9 @@ namespace Genetics.GeneSummarization
 
                 for (int i = min; i < max; i++)
                 {
-                    outputSpace[i] += intensity;
+                    var intensityCurvePosition = Mathf.Abs(i - centerInOutput) / (outputBucketSize / 2f);
+                    var intensityHere = sampleIntensityCurve(intensityCurvePosition);
+                    outputSpace[i] += intensity * intensityHere;
                 }
             }
 

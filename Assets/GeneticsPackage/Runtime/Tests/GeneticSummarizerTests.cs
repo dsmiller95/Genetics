@@ -165,7 +165,7 @@ namespace Genetics
                 summary.sortedValues.Values,
                 new int[] { 2, 1, 1, 1, 1, 1 });
 
-            var continuosRender = summary.RenderContinuousHistogram(5 * 8);
+            var continuosRender = summary.RenderContinuousHistogram(5 * 8, x => 1);
 
             AssertSequenceEqual(
                 continuosRender,
@@ -187,7 +187,7 @@ namespace Genetics
             {
                 summary.ClassifyValue(value);
             }
-            var continuosRender = summary.RenderContinuousHistogram(5 * 8);
+            var continuosRender = summary.RenderContinuousHistogram(5 * 8, x => 1);
 
             AssertSequenceEqual(
                 continuosRender,
@@ -201,6 +201,25 @@ namespace Genetics
                 }.Select(x => x / 2f));
         }
 
+
+        [Test]
+        public void SummarizesFloatingGeneDriversIntoContinuousBucketsWithLinearFunction()
+        {
+            var summary = new ContinuousSummary(0, 5, 5);
+            summary.ClassifyValue(2);
+            var continuosRender = summary.RenderContinuousHistogram(5 * 8, x => 1 - x);
+
+            AssertSequenceEqual(
+                continuosRender,
+                new float[]
+                {
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, .25f, .5f, .75f,
+                    1f, .75f, .5f, .25f, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                }.Select(x => x / 1f));
+        }
 
         private static void AssertSequenceEqual<T>(IEnumerable<T> actual, IEnumerable<T> expected)
         {
