@@ -51,6 +51,10 @@ namespace Genetics.GeneSummarization
                 for (int i = min; i < max; i++)
                 {
                     var intensityCurvePosition = Mathf.Abs(i - centerInOutput) / (outputBucketSize / 2f);
+                    if(intensityCurvePosition > 1 || intensityCurvePosition < 0)
+                    {
+                        continue;
+                    }
                     var intensityHere = sampleIntensityCurve(intensityCurvePosition);
                     outputSpace[i] += intensity * intensityHere;
                 }
