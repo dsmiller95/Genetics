@@ -176,8 +176,31 @@ namespace Genetics
                     1, 1, 1, 1, 0, 0, 0, 0, // 3
                     0, 0, 1, 1, 2, 2, 3, 3, // 4
                     3, 3, 2, 2, 1, 1, 0, 0, // 5
-                });
+                }.Select(x => x / 3f));
         }
+        [Test]
+        public void SummarizesFloatingGeneDriversIntoContinuousBucketsNearEdgeCases()
+        {
+
+            var summary = new ContinuousSummary(0, 5, 5);
+            foreach (var value in new[] { 0f, .25f, 1f, 4.75f, 5f })
+            {
+                summary.ClassifyValue(value);
+            }
+            var continuosRender = summary.RenderContinuousHistogram(5 * 8);
+
+            AssertSequenceEqual(
+                continuosRender,
+                new float[]
+                {
+                    2, 2, 2, 2, 2, 2, 1, 1,
+                    1, 1, 1, 1, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 1, 1, 2, 2, 2, 2,
+                }.Select(x => x / 2f));
+        }
+
 
         private static void AssertSequenceEqual<T>(IEnumerable<T> actual, IEnumerable<T> expected)
         {

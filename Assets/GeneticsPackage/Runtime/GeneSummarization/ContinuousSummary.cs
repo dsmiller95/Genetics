@@ -36,8 +36,8 @@ namespace Genetics.GeneSummarization
             {
                 float intensity = sampleValues.Value;
                 var centerInOutput = (sampleValues.Key - minValue) * sampleSpaceToOutputSpace;
-                var min = (int)(centerInOutput - outputBucketSize / 2f);
-                var max = (int)(centerInOutput + outputBucketSize / 2f);
+                var min = Mathf.Max(0, (int)(centerInOutput - outputBucketSize / 2f));
+                var max = Mathf.Min(outputSpace.Length, (int)(centerInOutput + outputBucketSize / 2f));
 
                 for (int i = min; i < max; i++)
                 {
@@ -45,7 +45,9 @@ namespace Genetics.GeneSummarization
                 }
             }
 
-            return outputSpace;
+            var maxIntensity = outputSpace.Max();
+
+            return outputSpace.Select(x => x / maxIntensity).ToArray();
         }
 
         public override void ClassifyValue(float value)
