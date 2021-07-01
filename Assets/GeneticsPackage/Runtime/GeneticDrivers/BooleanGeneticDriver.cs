@@ -8,8 +8,10 @@ namespace Genetics.GeneticDrivers
     {
         [Tooltip("Used to describe the state of the driver in the UI")]
         public string outcomeWhenTrue;
+        public Color trueColor = Color.black;
         [Tooltip("Used to describe the state of the driver in the UI")]
         public string outcomeWhenFalse;
+        public Color falseColor = Color.black;
         public override string DescribeState(bool state)
         {
             return state ? outcomeWhenTrue : outcomeWhenFalse;
@@ -27,7 +29,9 @@ namespace Genetics.GeneticDrivers
 
         public override AbstractSummary GetSummarizer()
         {
-            return new DiscretSummary(new string[] { outcomeWhenFalse, outcomeWhenTrue });
+            return new DiscretSummary(
+                new string[] { outcomeWhenFalse, outcomeWhenTrue },
+                this);
         }
 
         public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)

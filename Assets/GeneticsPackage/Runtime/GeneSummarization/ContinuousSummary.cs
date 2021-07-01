@@ -8,15 +8,16 @@ namespace Genetics.GeneSummarization
     public class ContinuousSummary : AbstractSummary
     {
         private float bucketSize;
-        private float minValue;
-        private float maxValue;
+        public float minValue;
+        public float maxValue;
 
         public SortedList<float, int> sortedValues;
 
         public ContinuousSummary(
             float minValue,
             float maxValue,
-            int bucketNumber)
+            int bucketNumber,
+            GeneticDriver source): base(source)
         {
             this.minValue = minValue;
             this.maxValue = maxValue;

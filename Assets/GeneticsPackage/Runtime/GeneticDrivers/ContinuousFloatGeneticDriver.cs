@@ -27,7 +27,11 @@ namespace Genetics.GeneticDrivers
 
         public override AbstractSummary GetSummarizer()
         {
-            return new ContinuousSummary(minValue, maxValue, summaryBucketCount <= 0 ? Mathf.FloorToInt(maxValue - minValue) : summaryBucketCount);
+            return new ContinuousSummary(
+                minValue, 
+                maxValue, 
+                summaryBucketCount <= 0 ? Mathf.FloorToInt(maxValue - minValue) : summaryBucketCount,
+                this);
         }
 
         public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)

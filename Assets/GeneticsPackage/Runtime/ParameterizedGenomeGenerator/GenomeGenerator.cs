@@ -21,22 +21,36 @@ namespace Genetics.ParameterizedGenomeGenerator
         /// <summary>
         /// Generate genomes infinitely. Will retry randomly generating genomes, and only return those which match the
         ///     target definitions. Will only run the generation algorythm <paramref name="nullProcessingSpacer"/> times
-        ///     before yielding a null. In this way, null values can be used to spae out 
+        ///     before yielding a null. In this way, null values can be used to space out processing over multiple frames
         /// </summary>
         /// <param name="randomSource"></param>
         /// <param name="nullProcessingSpacer"></param>
         /// <returns>An infinite series of genomes which match the target params, and nulls to space out results based on processing time</returns>
-        public IEnumerable<Genome> GenerateGenomes(Random randomSource, int nullProcessingSpacer)
+        public IEnumerable<Genome> GenerateGenomes(
+            Random randomSource,
+            int nullProcessingSpacer)
+        {
+            return this.GenerateGenomes(
+                nullProcessingSpacer,
+                () => genomeTarget.GenerateBaseGenomeData(randomSource),
+                genome => genome);
+        }
+        public IEnumerable<T> GenerateGenomes<T>(
+            int nullProcessingSpacer,
+            Func<T> generateGeneCarrier,
+            Func<T, Genome> selectGenomeFromCarrier)
+            where T: class
         {
             var processingSinceLastSpacer = 0;
             while (true)
             {
-                var nextGenome = genomeTarget.GenerateBaseGenomeData(randomSource);
+                var nextGeneCarrier = generateGeneCarrier();
+                var nextGenome = selectGenomeFromCarrier(nextGeneCarrier);
                 var nextDrivers = genomeTarget.CompileGenome(nextGenome);
                 processingSinceLastSpacer++;
                 if (DriversMatch(nextDrivers))
                 {
-                    yield return nextGenome;
+                    yield return nextGeneCarrier;
                 }
                 if (processingSinceLastSpacer >= nullProcessingSpacer)
                 {

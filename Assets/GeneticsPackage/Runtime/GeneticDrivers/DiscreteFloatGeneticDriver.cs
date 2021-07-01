@@ -13,6 +13,7 @@ namespace Genetics.GeneticDrivers
     public class DiscreteFloatGeneticDriver : FloatGeneticDriver
     {
         public string[] possibleStates;
+        public Color[] possibleColors;
 
         public override string DescribeState(float state)
         {
@@ -61,7 +62,9 @@ namespace Genetics.GeneticDrivers
 
         public override AbstractSummary GetSummarizer()
         {
-            return new DiscretSummary(possibleStates);
+            return new DiscretSummary(
+                possibleStates,
+                this);
         }
 
         public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)

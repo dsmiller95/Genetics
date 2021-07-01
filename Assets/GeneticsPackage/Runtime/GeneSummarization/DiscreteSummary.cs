@@ -19,7 +19,7 @@ namespace Genetics.GeneSummarization {
         }
         public BucketClassification[] allClassifications;
 
-        public DiscretSummary(string[] discreteClassifications)
+        public DiscretSummary(string[] discreteClassifications, GeneticDriver source): base(source)
         {
             this.InitializeBuckets(discreteClassifications);
         }

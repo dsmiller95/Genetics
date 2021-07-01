@@ -152,7 +152,7 @@ namespace Genetics
         public void SummarizesFloatingGeneDriversIntoContinuousBuckets()
         {
 
-            var summary = new ContinuousSummary(0, 5, 5);
+            var summary = new ContinuousSummary(0, 5, 5, null);
             foreach (var value in new[] { 1f, 1f, 1.5f, 2f, 3.75f, 4f, 4.25f })
             {
                 summary.ClassifyValue(value);
@@ -182,7 +182,7 @@ namespace Genetics
         public void SummarizesFloatingGeneDriversIntoContinuousBucketsNearEdgeCases()
         {
 
-            var summary = new ContinuousSummary(0, 5, 5);
+            var summary = new ContinuousSummary(0, 5, 5, null);
             foreach (var value in new[] { 0f, .25f, 1f, 4.75f, 5f })
             {
                 summary.ClassifyValue(value);
@@ -205,7 +205,7 @@ namespace Genetics
         [Test]
         public void SummarizesFloatingGeneDriversIntoContinuousBucketsWithLinearFunction()
         {
-            var summary = new ContinuousSummary(0, 5, 5);
+            var summary = new ContinuousSummary(0, 5, 5, null);
             summary.ClassifyValue(2);
             var continuosRender = summary.RenderContinuousHistogram(5 * 8, x => 1 - x);
 
