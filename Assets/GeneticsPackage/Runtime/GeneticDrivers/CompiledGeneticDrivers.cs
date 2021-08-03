@@ -36,9 +36,9 @@ namespace Genetics.GeneticDrivers
             return false;
         }
 
-        public void SetGeneticDriverData<T>(GeneticDriver<T> driver, T value)
+        public void SetGeneticDriverData<T>(GeneticDriver<T> driver, T value, bool forceWrite = false)
         {
-            if (!writable)
+            if (!writable && !forceWrite)
             {
                 return;
             }
