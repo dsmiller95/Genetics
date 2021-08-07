@@ -76,5 +76,12 @@ namespace Genetics.GeneSummarization
                 sortedValues[value] = 1;
             }
         }
+        public override string ToString()
+        {
+            return string.Join(
+                ", ",
+                RenderContinuousHistogram(10, x => 1)
+                );
+        }
     }
 }

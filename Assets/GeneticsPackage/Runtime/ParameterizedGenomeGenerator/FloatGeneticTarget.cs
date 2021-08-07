@@ -20,10 +20,14 @@ namespace Genetics.ParameterizedGenomeGenerator
         [Header("Range for the width of the driver valid range")]
         public float rangeMin;
         public float rangeMax;
-        public FloatGeneticTarget GenerateTarget()
+        public FloatGeneticTarget GenerateTarget(System.Random randProvider = null)
         {
-            var range = UnityEngine.Random.Range(rangeMin, rangeMax);
-            var minValue = UnityEngine.Random.Range(0f, absoluteMax - absoluteMin - range);
+            if(randProvider == null)
+            {
+                randProvider = new System.Random(UnityEngine.Random.Range(1, int.MaxValue));
+            }
+            var range = (float)(randProvider.NextDouble() * (rangeMax - rangeMin) + rangeMin);
+            var minValue = (float)(randProvider.NextDouble() * (absoluteMax - absoluteMin - range) + absoluteMin);
             return new FloatGeneticTarget
             {
                 minValue = Mathf.Round(minValue * 10) / 10f,
