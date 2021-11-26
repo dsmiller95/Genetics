@@ -25,6 +25,25 @@ namespace Genetics.GeneticDrivers
             return writable && !(writable = false);
         }
 
+        public bool TryGetGeneticDataAsString(GeneticDriver driver, out string driverValue)
+        {
+            if (geneticDriverValues.TryGetValue(driver.DriverName, out var objectValue))
+            {
+                driverValue = objectValue.ToString();
+                return true;
+            }
+            driverValue = null;
+            return false;
+        }
+        public T GetGeneticData<T>(GeneticDriver<T> driver)
+        {
+            if (geneticDriverValues.TryGetValue(driver.DriverName, out var objectValue) && objectValue is T typedValue)
+            {
+                return typedValue;
+            }
+            throw new Exception($"Genetic driver {driver} is not set, this is due to either a missing gene in the genome, or a gene ordering problem");
+        }
+
         public bool TryGetGeneticData<T>(GeneticDriver<T> driver, out T driverValue)
         {
             if (geneticDriverValues.TryGetValue(driver.DriverName, out var objectValue) && objectValue is T typedValue)
@@ -43,6 +62,16 @@ namespace Genetics.GeneticDrivers
                 return;
             }
             geneticDriverValues[driver.DriverName] = value;
+        }
+
+        public override string ToString()
+        {
+            var result = new System.Text.StringBuilder();
+            foreach (var driver in geneticDriverValues)
+            {
+                result.AppendLine($"{driver.Key,20}: {driver.Value}");
+            }
+            return result.ToString();
         }
 
         #region Serialization

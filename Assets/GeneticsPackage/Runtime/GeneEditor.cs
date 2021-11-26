@@ -7,7 +7,28 @@ namespace Genetics
     [System.Serializable]
     public struct SingleGene
     {
+        private static char[] Replacements = new[] { 'A', 'C', 'T', 'G' };
         public ulong Value;
+        public override string ToString()
+        {
+            return IntToString(Value, Replacements)
+                .PadLeft(32, Replacements[0]);
+        }
+
+        private static string IntToString(ulong value, char[] baseChars)
+        {
+            string result = string.Empty;
+            ulong targetBase = (ulong)baseChars.Length;
+
+            do
+            {
+                result = baseChars[value % targetBase] + result;
+                value = value / targetBase;
+            }
+            while (value > 0);
+
+            return result;
+        }
     }
 
     [System.Serializable]

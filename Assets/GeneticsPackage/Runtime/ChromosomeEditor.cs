@@ -89,9 +89,23 @@ namespace Genetics
             return Chromosome.GetBaseGenes(this, random);
         }
 
-        private int ChromosomeGeneticSize()
+        public int ChromosomeGeneticSize()
         {
             return genes.Sum(x => x.GeneSize);
+        }
+
+        public int GetOriginIndexForGene(GeneEditor gene)
+        {
+            var index = 0;
+            foreach (var nextGene in genes)
+            {
+                if (nextGene == gene)
+                {
+                    return index;
+                }
+                index += nextGene.GeneSize;
+            }
+            return -1;
         }
 
         public void CompileChromosomeIntoDrivers(Chromosome chromosome, CompiledGeneticDrivers drivers)

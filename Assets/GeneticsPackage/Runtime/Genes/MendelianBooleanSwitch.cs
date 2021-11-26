@@ -5,8 +5,6 @@ using UnityEngine;
 
 namespace Genetics.Genes
 {
-
-
     [CreateAssetMenu(fileName = "MendelianBooleanGene", menuName = "Genetics/Genes/MendelianBoolean", order = 2)]
     public class MendelianBooleanSwitch : GeneEditor
     {

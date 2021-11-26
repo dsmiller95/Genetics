@@ -9,7 +9,7 @@ namespace Genetics
         /// lifted from https://stackoverflow.com/questions/39253221/hamming-weight-of-int64?noredirect=1&lq=1
         /// </summary>
         /// <param name="x"></param>
-        /// <returns></returns>
+        /// <returns>varies from 0 to 63</returns>
         public static int HammingWeight(ulong x)
         {
             x = (x & 0x5555555555555555) + ((x >> 1) & 0x5555555555555555); //put count of each  2 bits into those  2 bits 
@@ -34,6 +34,12 @@ namespace Genetics
             }
             return newGene;
         }
+
+        /// <summary>
+        /// Return a boolean value which should be evenly distributed when the bits are evenly distributed
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
         public static bool EvenSplitHammingWeight(ulong x)
         {
             var weight = HammingWeight(x);
