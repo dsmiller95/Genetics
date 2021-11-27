@@ -60,9 +60,9 @@ namespace Genetics
             if(genomeData.allChromosomes.Length != chromosomes.Length) { 
                 Debug.LogError($"Chromosome number mismatch! Chromosomes in data: {genomeData.allChromosomes.Length}, current chromosome count: {chromosomes.Length}.");
             }
-            if(geneInterpretors.Any(x => x.GeneSize > 0))
+            if(geneInterpretors.Any(x => x.GeneUsage.Length > 0))
             {
-                Debug.LogError($"All genes with any backing genetic information must be in a chromosome. ${geneInterpretors.First(x => x.GeneSize > 0)} has a non-zero gene size");
+                Debug.LogError($"All genes with any backing genetic information must be in a chromosome. ${geneInterpretors.First(x => x.GeneUsage.Length > 0)} has a non-zero gene size");
             }
 
             for (int chromosomeIndex = 0; chromosomeIndex < chromosomes.Length; chromosomeIndex++)
@@ -74,7 +74,7 @@ namespace Genetics
 
             foreach (var interpretor in geneInterpretors)
             {
-                interpretor.Evaluate(drivers, new GeneCopies[0]);
+                interpretor.Evaluate(drivers, new SingleChromosomeCopy[0]);
             }
 
             drivers.Lock();

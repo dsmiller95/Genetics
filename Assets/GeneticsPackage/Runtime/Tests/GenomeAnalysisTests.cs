@@ -39,8 +39,8 @@ namespace Genetics
             Assert.AreEqual(1, samplingResult.boolResults.Length);
             var boolHistogram = samplingResult.boolResults[0];
             Assert.AreEqual(boolDriver, boolHistogram.analyzedDriver);
-            Assert.AreEqual(0, boolHistogram.trueResultCount);
-            Assert.AreEqual(1, boolHistogram.falseResultCount);
+            Assert.AreEqual(1, boolHistogram.trueResultCount);
+            Assert.AreEqual(0, boolHistogram.falseResultCount);
         }
 
         [Test]
@@ -146,7 +146,8 @@ namespace Genetics
             AssertEquivalentDistribution(
                 new double[] { 1, 3, 3, 1 },
                 floatHistogram.buckets,
-                totalSamples);
+                totalSamples,
+                150);
         }
         [Test]
         public void CompositeMendelianAggregatorTendsTowardsWeightedBinomial()
@@ -295,7 +296,8 @@ namespace Genetics
                     oneDifferentProbability,
                     pureProbability},
                 floatHistogram.buckets,
-                totalSamples);
+                totalSamples,
+                150);
         }
         [Test]
         public void FloatGeneSingleChromosomeProducesEvenDistribution()
@@ -436,7 +438,7 @@ namespace Genetics
 
             if(allowedDeviation < 0)
             {
-                allowedDeviation = Mathf.Sqrt(totalSamples);
+                allowedDeviation = Mathf.Sqrt(totalSamples); //Mathf.Pow(totalSamples, 2f / 3f);
             }
 
             var expectedToSampleNumConversion = totalSamples / expectedDistribution.Sum();

@@ -43,7 +43,7 @@ namespace Genetics
         public static bool EvenSplitHammingWeight(ulong x)
         {
             var weight = HammingWeight(x);
-            return weight > 32;
+            return (weight % 2) == 0;
         }
     }
 }

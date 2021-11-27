@@ -10,28 +10,28 @@ namespace Genetics.Genes
     {
         public BooleanGeneticDriver switchOutput;
 
-        public override int GeneSize => 1;
+        public int originIndex = 0;
+        [Tooltip("sets the base pair size of this gene. higher number increases the chance than a mutation will hit the gene")]
+        [Range(1, 32)]
+        public int volatility = 2;
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, GeneCopies[] genes)
+        public override GeneSpan GeneUsage => new GeneSpan
+        {
+            start = new GeneIndex(originIndex),
+            end = new GeneIndex(originIndex + volatility)
+        };
+
+        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(switchOutput, out var _))
             {
                 Debug.LogWarning($"Overwriting already set genetic driver {switchOutput} in gene {this}.");
             }
-            var gene = genes[0];
-            var booleanOutput = gene.chromosomalCopies.Any(x => HammingUtilities.EvenSplitHammingWeight(x.Value));
+            var span = GeneUsage;
+            var booleanOutput = fullChromosomes.Any(x => HammingUtilities.EvenSplitHammingWeight(x.SampleBasePairs(span)));
 
             editorHandle.SetGeneticDriverData(switchOutput, booleanOutput);
         }
-
-        public override SingleGene[] GenerateGeneData(System.Random randomGen)
-        {
-            ulong newGene = HammingUtilities.RandomEvenHammingWeight(randomGen);
-
-            return new SingleGene[] { new SingleGene { Value = newGene } };
-        }
-
-
 
         public override IEnumerable<GeneticDriver> GetInputs()
         {

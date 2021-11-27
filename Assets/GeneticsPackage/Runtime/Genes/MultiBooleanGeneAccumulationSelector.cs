@@ -18,9 +18,13 @@ namespace Genetics.Genes
         public FloatGeneticDriver floatOutput;
         public BooleanGeneticDriver[] booleanInputs;
 
-        public override int GeneSize => 0;
+        public override GeneSpan GeneUsage => new GeneSpan
+        {
+            start = new GeneIndex(0),
+            end = new GeneIndex(0)
+        };
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, GeneCopies[] data)
+        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(floatOutput, out var _))
             {
@@ -45,11 +49,6 @@ namespace Genetics.Genes
         public override IEnumerable<GeneticDriver> GetOutputs()
         {
             yield return floatOutput;
-        }
-
-        public override SingleGene[] GenerateGeneData(System.Random random)
-        {
-            return new SingleGene[0];
         }
     }
 }

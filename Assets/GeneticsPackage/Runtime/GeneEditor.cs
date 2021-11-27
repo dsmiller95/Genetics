@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Genetics
 {
     [System.Serializable]
+    [System.Obsolete]
     public struct SingleGene
     {
         private static char[] Replacements = new[] { 'A', 'C', 'T', 'G' };
@@ -31,12 +32,6 @@ namespace Genetics
         }
     }
 
-    [System.Serializable]
-    public class GeneCopies
-    {
-        public SingleGene[] chromosomalCopies;
-    }
-
     /// <summary>
     /// Represents zero or one genes, and how the gene and other genetic drives should be interpreted
     /// </summary>
@@ -53,7 +48,7 @@ namespace Genetics
         /// <returns></returns>
         public abstract IEnumerable<GeneticDriver> GetOutputs();
 
-        public abstract int GeneSize { get; }
+        public abstract GeneSpan GeneUsage { get; }
 
         /// <summary>
         /// 
@@ -61,26 +56,6 @@ namespace Genetics
         /// <param name="editorHandle"></param>
         /// <param name="data">gene data including chromosomal duplicates. first dimension is unique genes, length 
         ///     equal to <see cref="GeneSize"/>. Second dimension is duplicate copies of the chromosome</param>
-        public abstract void Evaluate(CompiledGeneticDrivers editorHandle, GeneCopies[] data);
-
-        public virtual SingleGene[] GenerateGeneData(System.Random randomProvider)
-        {
-            var result = new SingleGene[GeneSize];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = RandomGene(randomProvider);
-            }
-            return result;
-        }
-
-        private SingleGene RandomGene(System.Random randomProvider)
-        {
-            ulong part1 = ((ulong)randomProvider.Next(int.MinValue, int.MaxValue)) << 32;
-            ulong part2 = (ulong)randomProvider.Next(int.MinValue, int.MaxValue);
-            return new SingleGene
-            {
-                Value = part1 | part2
-            };
-        }
+        public abstract void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes);
     }
 }

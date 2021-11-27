@@ -1,10 +1,42 @@
 ﻿using Dman.Utilities;
 using Genetics.GeneticDrivers;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 
 namespace Genetics
 {
+    public class SingleChromosomeCopy
+    {
+        public byte[] chromosomeData;
+
+        public ulong SampleBasePairs(GeneSpan span)
+        {
+            if(span.Length > 32)
+            {
+                throw new System.Exception("gene span too big");
+            }
+
+            ulong result = 0;
+            for (int i = 0; i < span.Length; i++)
+            {
+                var originIndex = span.start + new GeneIndex(i);
+                var sample = SampleIndex(originIndex);
+                result = (result << 2) | sample;
+            }
+
+            return result;
+        }
+
+        private byte SampleIndex(GeneIndex index)
+        {
+            var byteIndex = index.IndexToByteData;
+            var shift = index.IndexInsideByte * 2;
+            var mask = 0b11 << shift;
+            return (byte)((chromosomeData[byteIndex] & mask) >> shift);
+        }
+    }
+
     [System.Serializable]
     public class Chromosome
     {
@@ -13,7 +45,7 @@ namespace Genetics
         /// first dimension is for each unique gene. each gene contains all of the
         ///     chromosomal copies of that same gene
         /// </summary>
-        public GeneCopies[] allGeneData;
+        public SingleChromosomeCopy[] allGeneData;
 
         public Chromosome(params Chromosome[] parentalChromosomes)
         {
@@ -27,28 +59,11 @@ namespace Genetics
             {
                 throw new System.ArgumentException("all chromosomes must be equal in size");
             }
-            var chromosomalCopies = parentalChromosomes[0].allGeneData[0].chromosomalCopies.Length;
+            var chromosomalCopies = parentalChromosomes[0].allGeneData.Length;
             var parentSelections = ArrayExtensions.SelectIndexSources(chromosomalCopies, parentalChromosomes.Length);
-            var geneDataPivoted = parentSelections
+            allGeneData = parentSelections
                 .Select(parentIndex => parentalChromosomes[parentIndex].SampleSingleCopyFromChromosome())
                 .ToArray();
-
-            allGeneData = GenePivot(geneDataPivoted);
-        }
-
-        /// <summary>
-        /// take in a list of individual chromosomes, pivot them to be a list of genes
-        ///     each gene containing all of it's copy data
-        /// </summary>
-        /// <param name="geneDataPivoted"></param>
-        /// <returns></returns>
-        private static GeneCopies[] GenePivot(SingleGene[][] geneDataPivoted)
-        {
-            var geneData = geneDataPivoted.Pivot();
-            return geneData.Select(x => new GeneCopies
-            {
-                chromosomalCopies = x
-            }).ToArray();
         }
 
         /// <summary>
@@ -57,23 +72,45 @@ namespace Genetics
         ///     a single instance of each gene to be passed on to children
         /// </summary>
         /// <returns></returns>
-        private SingleGene[] SampleSingleCopyFromChromosome()
+        private SingleChromosomeCopy SampleSingleCopyFromChromosome()
         {
-            var chromosomeCopies = allGeneData[0].chromosomalCopies.Length;
-            return allGeneData.Select(geneCopies => geneCopies.chromosomalCopies[Random.Range(0, chromosomeCopies)]).ToArray();
+            var chromosomeCopies = allGeneData.Length;
+            var resultingChromosome = new byte[allGeneData[0].chromosomeData.Length];
+            for (int i = 0; i < allGeneData[0].chromosomeData.Length; i++)
+            {
+                byte resultByte = 0;
+                for (int filterWindow = 0b11; filterWindow < byte.MaxValue; filterWindow = filterWindow << 2)
+                {
+                    var geneSelection = Random.Range(0, chromosomeCopies);
+                    int selectedBasePair = allGeneData[geneSelection].chromosomeData[i] & filterWindow;
+                    resultByte = (byte)(resultByte | selectedBasePair);
+                }
+                resultingChromosome[i] = resultByte;
+            }
+            return new SingleChromosomeCopy
+            {
+                chromosomeData = resultingChromosome
+            };
         }
 
         public static Chromosome GetBaseGenes(ChromosomeEditor geneGenerators, System.Random random)
         {
-            var pivotedGeneData = new SingleGene[geneGenerators.chromosomeCopies][];
-            for (int chromosomeCopy = 0; chromosomeCopy < pivotedGeneData.Length; chromosomeCopy++)
+            var geneData = new SingleChromosomeCopy[geneGenerators.chromosomeCopies];
+
+            var geneticSize = geneGenerators.ChromosomeGeneticSize();
+            for (int chromosomeCopy = 0; chromosomeCopy < geneData.Length; chromosomeCopy++)
             {
-                pivotedGeneData[chromosomeCopy] = geneGenerators.genes.SelectMany(x => x.GenerateGeneData(random)).ToArray();
+                var bytes = new byte[geneticSize.IndexToByteData + 1];
+                random.NextBytes(bytes);
+                geneData[chromosomeCopy] = new SingleChromosomeCopy
+                {
+                    chromosomeData = bytes
+                };
             }
 
             return new Chromosome
             {
-                allGeneData = GenePivot(pivotedGeneData)
+                allGeneData = geneData
             };
         }
     }
@@ -89,39 +126,28 @@ namespace Genetics
             return Chromosome.GetBaseGenes(this, random);
         }
 
-        public int ChromosomeGeneticSize()
+        public GeneIndex ChromosomeGeneticSize()
         {
-            return genes.Sum(x => x.GeneSize);
-        }
-
-        public int GetOriginIndexForGene(GeneEditor gene)
-        {
-            var index = 0;
-            foreach (var nextGene in genes)
+            var aggregateSpan = genes
+                .Select(x => x.GeneUsage)
+                .Aggregate((accumulate, next) => new GeneSpan(accumulate, next));
+            if(aggregateSpan.start.allelePosition > 0)
             {
-                if (nextGene == gene)
-                {
-                    return index;
-                }
-                index += nextGene.GeneSize;
+                Debug.LogWarning($"chromosome {this.name} does not use the 0th allele, leading to wasted space");
             }
-            return -1;
+            return aggregateSpan.end;
         }
 
         public void CompileChromosomeIntoDrivers(Chromosome chromosome, CompiledGeneticDrivers drivers)
         {
-            if (ChromosomeGeneticSize() != chromosome.allGeneData.Length)
+            var expecteByteSize = ChromosomeGeneticSize().IndexToByteData + 1;
+            if (expecteByteSize != chromosome.allGeneData[0].chromosomeData.Length)
             {
-                Debug.LogError($"genome does not match current genes! Genome data size: {chromosome.allGeneData.Length}, current gene size: {genes.Length}. Resetting genome data");
+                Debug.LogError($"genome does not match current genes! Genome data size: {expecteByteSize}, current gene size: {chromosome.allGeneData[0].chromosomeData.Length}. Resetting genome data");
             }
-            var geneDataIndex = 0;
             for (int geneIndex = 0; geneIndex < genes.Length; geneIndex++)
             {
-                var gene = genes[geneIndex];
-                var geneCount = gene.GeneSize;
-                var geneData = chromosome.allGeneData.Skip(geneDataIndex).Take(geneCount).ToArray();
-                geneDataIndex += geneCount;
-                gene.Evaluate(drivers, geneData);
+                genes[geneIndex].Evaluate(drivers, chromosome.allGeneData);
             }
         }
     }

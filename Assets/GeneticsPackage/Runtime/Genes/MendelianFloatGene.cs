@@ -10,7 +10,6 @@ namespace Genetics.Genes
     public class MendelianFloatGene : GeneEditor
     {
         public FloatGeneticDriver floatOutput;
-        public override int GeneSize => 1;
 
         [Tooltip("The point between the min and max of the range to be treated as dominant. If .5, every value closer to the average of the range will be dominant over those farther away")]
         [Range(0, 1)]
@@ -18,17 +17,25 @@ namespace Genetics.Genes
         public float rangeMin = 0;
         public float rangeMax = 1;
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, GeneCopies[] data)
+        public int originIndex = 0;
+        [Tooltip("sets the base pair size of this gene. higher number increases the precision, but also increases the number of genes which will have a small effect")]
+        [Range(1, 32)]
+        public int precision = 4;
+
+        public override GeneSpan GeneUsage => new GeneSpan
+        {
+            start = new GeneIndex(originIndex),
+            end = new GeneIndex(originIndex + precision)
+        };
+        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(floatOutput, out var _))
             {
                 Debug.LogWarning($"Overwriting already set genetic driver {floatOutput} in gene {this}.lyzer");
             }
-            var gene = data[0];
-
             var minimumDist = float.MaxValue;
             var dominantValue = 0d;
-            foreach (var chromosomeCopy in gene.chromosomalCopies)
+            foreach (var chromosomeCopy in fullChromosomes)
             {
                 var value = EvaluateSingleGene(chromosomeCopy);
                 var relativeVal = (value - rangeMin) / (rangeMax - rangeMin);
@@ -41,10 +48,10 @@ namespace Genetics.Genes
             }
             editorHandle.SetGeneticDriverData(floatOutput, (float)dominantValue);
         }
-        private double EvaluateSingleGene(SingleGene gene)
+        private double EvaluateSingleGene(SingleChromosomeCopy gene)
         {
-            var weight = HammingUtilities.HammingWeight(gene.Value);
-            var adjusted = (weight / 64d) * (rangeMax - rangeMin) + rangeMin;
+            var weight = gene.SampleBasePairs(GeneUsage) / (double)(1 << (GeneUsage.Length * 2));
+            var adjusted = weight * (rangeMax - rangeMin) + rangeMin;
             return adjusted;
         }
 
@@ -57,13 +64,6 @@ namespace Genetics.Genes
         public override IEnumerable<GeneticDriver> GetOutputs()
         {
             yield return floatOutput;
-        }
-
-        public override SingleGene[] GenerateGeneData(System.Random randomGen)
-        {
-            ulong newGene = HammingUtilities.RandomEvenHammingWeight(randomGen);
-
-            return new SingleGene[] { new SingleGene { Value = newGene } };
         }
     }
 }

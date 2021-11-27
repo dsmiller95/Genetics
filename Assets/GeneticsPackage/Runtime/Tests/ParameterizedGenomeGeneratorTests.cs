@@ -113,6 +113,7 @@ namespace Genetics
         {
             var floatGene = ScriptableObject.CreateInstance<MendelianFloatGene>();
             var float1 = FloatDriver();
+            floatGene.originIndex = 0;
             floatGene.floatOutput = float1;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
@@ -121,6 +122,7 @@ namespace Genetics
             var boolGene = ScriptableObject.CreateInstance<MendelianBooleanSwitch>();
             var bool1 = BoolDriver();
             boolGene.switchOutput = bool1;
+            boolGene.originIndex = floatGene.precision;
 
             var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
             chromosome.chromosomeCopies = 1;
@@ -170,6 +172,7 @@ namespace Genetics
         {
             var floatGene = ScriptableObject.CreateInstance<MendelianFloatGene>();
             var float1 = FloatDriver();
+            floatGene.originIndex = 0;
             floatGene.floatOutput = float1;
             floatGene.rangeMin = 0f;
             floatGene.rangeMax = 10f;
@@ -177,6 +180,7 @@ namespace Genetics
             var boolGene = ScriptableObject.CreateInstance<MendelianBooleanSwitch>();
             var bool1 = BoolDriver();
             boolGene.switchOutput = bool1;
+            boolGene.originIndex = floatGene.precision;
 
             var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
             chromosome.chromosomeCopies = 2;

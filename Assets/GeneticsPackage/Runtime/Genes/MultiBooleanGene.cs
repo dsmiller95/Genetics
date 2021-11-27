@@ -18,11 +18,20 @@ namespace Genetics.Genes
         public BooleanGeneticDriver[] outputDrivers;
         public bool[] dominantValues;
 
-        public override int GeneSize => outputDrivers.Length;
+        public int originIndex = 0;
+        [Tooltip("sets the base pair size of this gene. higher number increases the chance than a mutation will hit the gene")]
+        [Range(1, 32)]
+        public int volatility = 2;
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, GeneCopies[] genes)
+        public override GeneSpan GeneUsage => new GeneSpan
         {
-            for (int geneIndex = 0; geneIndex < genes.Length; geneIndex++)
+            start = new GeneIndex(originIndex),
+            end = new GeneIndex(originIndex + volatility * outputDrivers.Length)
+        };
+
+        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
+        {
+            for (int geneIndex = 0; geneIndex < outputDrivers.Length; geneIndex++)
             {
                 var switchOutput = outputDrivers[geneIndex];
                 if (editorHandle.TryGetGeneticData(switchOutput, out var _))
@@ -30,13 +39,18 @@ namespace Genetics.Genes
                     Debug.LogWarning($"Overwriting already set genetic driver {switchOutput} in gene {this}.");
                 }
 
-                var gene = genes[geneIndex];
+                var sampleOrigin = originIndex + volatility * geneIndex;
+                var sampleSpan = new GeneSpan
+                {
+                    start = new GeneIndex(sampleOrigin),
+                    end = new GeneIndex(sampleOrigin + volatility),
+                };
                 var dominantValue = dominantValues[geneIndex];
                 bool geneOutput;
                 if (dominantValue == true)
-                    geneOutput = gene.chromosomalCopies.Any(x => HammingUtilities.EvenSplitHammingWeight(x.Value));
+                    geneOutput = fullChromosomes.Any(x => HammingUtilities.EvenSplitHammingWeight(x.SampleBasePairs(sampleSpan)));
                 else
-                    geneOutput = gene.chromosomalCopies.All(x => HammingUtilities.EvenSplitHammingWeight(x.Value));
+                    geneOutput = fullChromosomes.All(x => HammingUtilities.EvenSplitHammingWeight(x.SampleBasePairs(sampleSpan)));
                 editorHandle.SetGeneticDriverData(switchOutput, geneOutput);
             }
         }
@@ -50,21 +64,6 @@ namespace Genetics.Genes
         {
             return outputDrivers;
         }
-
-        public override SingleGene[] GenerateGeneData(System.Random random)
-        {
-            var genes = new SingleGene[GeneSize];
-            for (int i = 0; i < genes.Length; i++)
-            {
-                genes[i] = new SingleGene
-                {
-                    Value = HammingUtilities.RandomEvenHammingWeight(random)
-                };
-            }
-            return genes;
-        }
-
-
         private void OnValidate()
         {
             if (outputDrivers.Length != dominantValues.Length)
