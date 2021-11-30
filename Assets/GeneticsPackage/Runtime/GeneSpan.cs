@@ -15,6 +15,11 @@ namespace Genetics
         /// </summary>
         public GeneIndex end;
 
+        public GeneSpan(GeneIndex singleGene)
+        {
+            start = singleGene;
+            end = singleGene + new GeneIndex(1);
+        }
         public GeneSpan(GeneSpan a, GeneSpan b)
         {
             start = new GeneIndex(Mathf.Min(a.start.allelePosition, b.start.allelePosition));

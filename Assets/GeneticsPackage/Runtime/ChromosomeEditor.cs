@@ -28,7 +28,7 @@ namespace Genetics
             return result;
         }
 
-        private byte SampleIndex(GeneIndex index)
+        public byte SampleIndex(GeneIndex index)
         {
             var byteIndex = index.IndexToByteData;
             var shift = index.IndexInsideByte * 2;

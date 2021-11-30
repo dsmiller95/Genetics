@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Genetics
@@ -20,6 +21,14 @@ namespace Genetics
         public static GeneIndex operator +(GeneIndex a, GeneIndex b)
         {
             return new GeneIndex(a.allelePosition + b.allelePosition);
+        }
+    }
+
+    public class DefaultGeneIndexComparer : IComparer<GeneIndex>
+    {
+        public int Compare(GeneIndex x, GeneIndex y)
+        {
+            return x.allelePosition.CompareTo(y.allelePosition);
         }
     }
 }
