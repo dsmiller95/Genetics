@@ -1,11 +1,11 @@
 {
   "name": "com.dman.genetics",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "displayName": "Genetics",
   "description": "Design and breed Genomes together",
   "unity": "2020.1",
   "dependencies": {
-    "com.dman.utilities": "file:../../UtilityPackages/Assets/UtilityScripts/com.dman.utilities",
+    "com.dman.utilities": "0.3.13",
     "com.dman.object-sets": "0.1.1"
   },
   "author": {
