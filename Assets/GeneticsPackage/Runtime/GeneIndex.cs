@@ -22,6 +22,15 @@ namespace Genetics
         {
             return new GeneIndex(a.allelePosition + b.allelePosition);
         }
+
+        public static bool operator ==(GeneIndex a, GeneIndex b)
+        {
+            return a.allelePosition == b.allelePosition;
+        }
+        public static bool operator !=(GeneIndex a, GeneIndex b)
+        {
+            return a.allelePosition != b.allelePosition;
+        }
     }
 
     public class DefaultGeneIndexComparer : IComparer<GeneIndex>

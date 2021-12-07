@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Genetics
 {
+    [System.Serializable]
     public class SingleChromosomeCopy
     {
         public byte[] chromosomeData;
@@ -34,6 +35,14 @@ namespace Genetics
             var shift = index.IndexInsideByte * 2;
             var mask = 0b11 << shift;
             return (byte)((chromosomeData[byteIndex] & mask) >> shift);
+        }
+        public void SetBasePairAtIndex(GeneIndex index, byte newBasePair)
+        {
+            var byteIndex = index.IndexToByteData;
+            var shift = index.IndexInsideByte * 2;
+
+            var mask = 0b11 << shift;
+            chromosomeData[byteIndex] = (byte)((chromosomeData[byteIndex] & ~mask) | ((newBasePair << shift) & mask));
         }
     }
 
