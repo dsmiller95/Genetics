@@ -25,17 +25,20 @@ namespace Genetics.GeneticDrivers
 
         public override string DescribeRange(float min, float max)
         {
-            var rangeClause = this.RangeClause(Mathf.FloorToInt(min), Mathf.FloorToInt(max));
+            var rangeClause = this.RangeClause(MinInt(min), MaxInt(max));
 
             return $"{this.DriverName}: {rangeClause}";
         }
         public override bool FallsInRange(float min, float max, float value)
         {
-            var minInt = Mathf.FloorToInt(min);
-            var maxInt = Mathf.FloorToInt(max);
+            var minInt = MinInt(min);
+            var maxInt = MaxInt(max);
             var valueInt = Mathf.FloorToInt(value);
             return valueInt >= minInt && valueInt <= maxInt;
         }
+
+        private int MinInt(float min) => Mathf.CeilToInt(min);
+        private int MaxInt(float max) => Mathf.FloorToInt(max);
 
         private string RangeClause(int min, int max)
         {

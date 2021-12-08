@@ -18,6 +18,21 @@ namespace Genetics
         {
             this.allelePosition = index;
         }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is GeneIndex indx)
+            {
+                return indx == this;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return allelePosition.GetHashCode();
+        }
+
         public static GeneIndex operator +(GeneIndex a, GeneIndex b)
         {
             return new GeneIndex(a.allelePosition + b.allelePosition);

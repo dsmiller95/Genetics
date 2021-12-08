@@ -11,10 +11,26 @@ namespace Genetics
 
         public static Genome GetBaseGenes(ChromosomeEditor[] chromosomeEditors, System.Random random)
         {
+            var chroms = new Chromosome[chromosomeEditors.Length];
+            for (int i = 0; i < chromosomeEditors.Length; i++)
+            {
+                chroms[i] = chromosomeEditors[i].GenerateChromosomeData(random);
+            }
             return new Genome
             {
-                allChromosomes = chromosomeEditors.Select(x => x.GenerateChromosomeData(random)).ToArray()
+                allChromosomes = chroms
             };
+        }
+
+        public void EnforceInvarianceOverHomologousCopies()
+        {
+            foreach (var chromosome in allChromosomes)
+            {
+                for (int i = 1; i < chromosome.allGeneData.Length; i++)
+                {
+                    chromosome.allGeneData[0].chromosomeData.CopyTo(chromosome.allGeneData[i].chromosomeData, 0);
+                }
+            }
         }
 
         /// <summary>
@@ -59,10 +75,6 @@ namespace Genetics
 
             if(genomeData.allChromosomes.Length != chromosomes.Length) { 
                 Debug.LogError($"Chromosome number mismatch! Chromosomes in data: {genomeData.allChromosomes.Length}, current chromosome count: {chromosomes.Length}.");
-            }
-            if(geneInterpretors.Any(x => x.GeneUsage.Length > 0))
-            {
-                Debug.LogError($"All genes with any backing genetic information must be in a chromosome. ${geneInterpretors.First(x => x.GeneUsage.Length > 0)} has a non-zero gene size");
             }
 
             for (int chromosomeIndex = 0; chromosomeIndex < chromosomes.Length; chromosomeIndex++)

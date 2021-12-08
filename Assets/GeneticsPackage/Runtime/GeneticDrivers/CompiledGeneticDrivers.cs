@@ -25,6 +25,11 @@ namespace Genetics.GeneticDrivers
             return writable && !(writable = false);
         }
 
+        public bool HasGeneticDriver(GeneticDriver driver)
+        {
+            return geneticDriverValues.ContainsKey(driver.DriverName);
+        }
+
         public bool TryGetGeneticDataAsString(GeneticDriver driver, out string driverValue)
         {
             if (geneticDriverValues.TryGetValue(driver.DriverName, out var objectValue))

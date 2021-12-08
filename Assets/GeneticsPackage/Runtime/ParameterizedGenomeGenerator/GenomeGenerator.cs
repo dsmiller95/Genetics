@@ -14,9 +14,11 @@ namespace Genetics.ParameterizedGenomeGenerator
     [System.Serializable]
     public class GenomeGenerator
     {
-        public BooleanGeneticTarget[] booleanTargets;
-        public FloatGeneticTarget[] floatTargets;
+        public BooleanGeneticTarget[] booleanTargets = new BooleanGeneticTarget[0];
+        public FloatGeneticTarget[] floatTargets = new FloatGeneticTarget[0];
         public GenomeEditor genomeTarget;
+        [UnityEngine.Tooltip("When true, chromosome copies will have different genes. when false, all chromosome copies will be identical")]
+        public bool varianceOverHomologous = true;
 
         /// <summary>
         /// Generate genomes infinitely. Will retry randomly generating genomes, and only return those which match the
@@ -35,20 +37,39 @@ namespace Genetics.ParameterizedGenomeGenerator
                 () => genomeTarget.GenerateBaseGenomeData(randomSource),
                 genome => genome);
         }
+
+        /// <summary>
+        /// this base implementation uses callbacks to allow other gene carriers to be used as the base unit,
+        ///     such as Seeds or any other object which may wrap a genome
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="nullProcessingSpacer"></param>
+        /// <param name="generateGeneCarrier"></param>
+        /// <param name="selectGenomeFromCarrier"></param>
+        /// <returns></returns>
         public IEnumerable<T> GenerateGenomes<T>(
             int nullProcessingSpacer,
             Func<T> generateGeneCarrier,
             Func<T, Genome> selectGenomeFromCarrier)
-            where T: class
+            where T : class
         {
             var processingSinceLastSpacer = 0;
+
+            var depTree = new GeneticDriverDependencyTree(genomeTarget);
+
             while (true)
             {
                 var nextGeneCarrier = generateGeneCarrier();
                 var nextGenome = selectGenomeFromCarrier(nextGeneCarrier);
-                var nextDrivers = genomeTarget.CompileGenome(nextGenome);
+                if (!varianceOverHomologous)
+                {
+                    nextGenome.EnforceInvarianceOverHomologousCopies();
+                }
+
+                var matches = CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree);
                 processingSinceLastSpacer++;
-                if (DriversMatch(nextDrivers))
+
+                if (matches)
                 {
                     yield return nextGeneCarrier;
                 }
@@ -60,12 +81,42 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
-        private bool DriversMatch(CompiledGeneticDrivers drivers)
+        private bool CompileGenesConditionallyRestrictedByTargets(Genome genomeData, GeneticDriverDependencyTree depTree)
         {
-            return booleanTargets
-                .Cast<IGeneticTarget>()
-                .Concat(floatTargets)
-                .All(x => x.Matches(drivers));
+            var drivers = new CompiledGeneticDrivers();
+
+            foreach (var boolTarget in booleanTargets)
+            {
+                var node = depTree.GetNodeFromDriver(boolTarget.targetDriver);
+                RecursivelyEvaluate(genomeData, drivers, node);
+                if (!boolTarget.Matches(drivers))
+                {
+                    return false;
+                }
+            }
+            foreach (var floatTarget in floatTargets)
+            {
+                var node = depTree.GetNodeFromDriver(floatTarget.targetDriver);
+                RecursivelyEvaluate(genomeData, drivers, node);
+                if (!floatTarget.Matches(drivers))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private void RecursivelyEvaluate(Genome genomeData, CompiledGeneticDrivers drivers, GeneticDriverDependencyTree.GeneticDriverNode currentNode)
+        {
+            if (drivers.HasGeneticDriver(currentNode.driver))
+            {
+                return;
+            }
+            foreach (var input in currentNode.inputs)
+            {
+                RecursivelyEvaluate(genomeData, drivers, input);
+            }
+            currentNode.TriggerEvaluate(genomeData, drivers);
         }
     }
 }
