@@ -66,10 +66,17 @@ namespace Genetics.ParameterizedGenomeGenerator
                     nextGenome.EnforceInvarianceOverHomologousCopies();
                 }
 
-                var matches = CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree);
+                var targetsMatch = CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree);
+                if (targetsMatch)
+                {
+                    UnityEngine.Profiling.Profiler.BeginSample("test matching genome");
+                    // make sure the full genome is valid
+                    targetsMatch = genomeTarget.CompileGenome(nextGenome) != null;
+                    UnityEngine.Profiling.Profiler.EndSample();
+                }
                 processingSinceLastSpacer++;
 
-                if (matches)
+                if (targetsMatch)
                 {
                     yield return nextGeneCarrier;
                 }
@@ -85,20 +92,16 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             var drivers = new CompiledGeneticDrivers();
 
-            foreach (var boolTarget in booleanTargets)
+            foreach (var target in booleanTargets)
             {
-                var node = depTree.GetNodeFromDriver(boolTarget.targetDriver);
-                RecursivelyEvaluate(genomeData, drivers, node);
-                if (!boolTarget.Matches(drivers))
+                if (!CheckTarget(genomeData, depTree, drivers, target))
                 {
                     return false;
                 }
             }
-            foreach (var floatTarget in floatTargets)
+            foreach (var target in floatTargets)
             {
-                var node = depTree.GetNodeFromDriver(floatTarget.targetDriver);
-                RecursivelyEvaluate(genomeData, drivers, node);
-                if (!floatTarget.Matches(drivers))
+                if (!CheckTarget(genomeData, depTree, drivers, target))
                 {
                     return false;
                 }
@@ -106,17 +109,38 @@ namespace Genetics.ParameterizedGenomeGenerator
             return true;
         }
 
-        private void RecursivelyEvaluate(Genome genomeData, CompiledGeneticDrivers drivers, GeneticDriverDependencyTree.GeneticDriverNode currentNode)
+        private bool CheckTarget(Genome genomeData, GeneticDriverDependencyTree depTree, CompiledGeneticDrivers drivers, IGeneticTarget target)
+        {
+            var node = depTree.GetNodeFromDriver(target.TargetDriver);
+            if (!RecursivelyEvaluate(genomeData, drivers, node))
+            {
+                return false;
+            }
+            if (!target.Matches(drivers))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="genomeData"></param>
+        /// <param name="drivers"></param>
+        /// <param name="currentNode"></param>
+        /// <returns>whether the zygote is still viable or not</returns>
+        private bool RecursivelyEvaluate(Genome genomeData, CompiledGeneticDrivers drivers, GeneticDriverDependencyTree.GeneticDriverNode currentNode)
         {
             if (drivers.HasGeneticDriver(currentNode.driver))
             {
-                return;
+                return true;
             }
             foreach (var input in currentNode.inputs)
             {
                 RecursivelyEvaluate(genomeData, drivers, input);
             }
-            currentNode.TriggerEvaluate(genomeData, drivers);
+            return currentNode.TriggerEvaluate(genomeData, drivers);
         }
     }
 }

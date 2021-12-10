@@ -29,7 +29,7 @@ namespace Genetics.Genes
             end = new GeneIndex(originIndex + volatility * outputDrivers.Length)
         };
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
+        public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             for (int geneIndex = 0; geneIndex < outputDrivers.Length; geneIndex++)
             {
@@ -53,6 +53,7 @@ namespace Genetics.Genes
                     geneOutput = fullChromosomes.All(x => HammingUtilities.EvenSplitHammingWeight(x.SampleBasePairs(sampleSpan)));
                 editorHandle.SetGeneticDriverData(switchOutput, geneOutput);
             }
+            return true;
         }
 
         public override IEnumerable<GeneticDriver> GetInputs()

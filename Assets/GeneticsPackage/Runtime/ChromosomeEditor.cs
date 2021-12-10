@@ -147,7 +147,13 @@ namespace Genetics
             return aggregateSpan.end;
         }
 
-        public void CompileChromosomeIntoDrivers(Chromosome chromosome, CompiledGeneticDrivers drivers)
+        /// <summary>
+        /// compile chromosome data into genetic drivers
+        /// </summary>
+        /// <param name="chromosome"></param>
+        /// <param name="drivers"></param>
+        /// <returns>true if the zygote is viable, false if fertalization fails</returns>
+        public bool CompileChromosomeIntoDrivers(Chromosome chromosome, CompiledGeneticDrivers drivers)
         {
             var expecteByteSize = ChromosomeGeneticSize().IndexToByteData + 1;
             if (expecteByteSize != chromosome.allGeneData[0].chromosomeData.Length)
@@ -156,8 +162,12 @@ namespace Genetics
             }
             for (int geneIndex = 0; geneIndex < genes.Length; geneIndex++)
             {
-                genes[geneIndex].Evaluate(drivers, chromosome.allGeneData);
+                if(!genes[geneIndex].Evaluate(drivers, chromosome.allGeneData))
+                {
+                    return false;
+                }
             }
+            return true;
         }
     }
 }

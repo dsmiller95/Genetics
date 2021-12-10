@@ -22,6 +22,7 @@ namespace Genetics
     {
         public GeneticFloatHistogram[] floatResults;
         public GeneticBoolHistogram[] boolResults;
+        public int inviable;
     }
 
     public class GenomeDistributionSampler : ScriptableObject
@@ -40,9 +41,16 @@ namespace Genetics
             // first value is count of false values, second is count of true values
             var boolBuckets = boolsOfInterest.ToDictionary(x => x.myId, x => (0, 0));
 
+            var inviables = 0;
+
             for (int i = 0; i < samples; i++)
             {
                 var nextDrivers = targetGenome.CompileGenome(targetGenome.GenerateBaseGenomeData(random));
+                if(nextDrivers == null)
+                {
+                    inviables++;
+                    continue;
+                }
 
                 foreach (var floatDriver in floatsOfInterest)
                 {

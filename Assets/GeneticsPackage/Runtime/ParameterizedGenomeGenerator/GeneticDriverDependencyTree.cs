@@ -29,15 +29,15 @@ namespace Genetics.ParameterizedGenomeGenerator
                 this.inputs = new List<GeneticDriverNode>();
             }
 
-            public void TriggerEvaluate(Genome genome, CompiledGeneticDrivers drivers)
+            public bool TriggerEvaluate(Genome genome, CompiledGeneticDrivers drivers)
             {
                 if (sourceEditorChromosome == -1)
                 {
-                    sourceEditor.Evaluate(drivers, new SingleChromosomeCopy[0]);
+                    return sourceEditor.Evaluate(drivers, new SingleChromosomeCopy[0]);
                 }
                 else
                 {
-                    sourceEditor.Evaluate(drivers, genome.allChromosomes[sourceEditorChromosome].allGeneData);
+                    return sourceEditor.Evaluate(drivers, genome.allChromosomes[sourceEditorChromosome].allGeneData);
                 }
             }
 

@@ -14,6 +14,7 @@ namespace Genetics.ParameterizedGenomeGenerator
     {
         public BooleanGeneticDriver targetDriver;
         public bool targetValue;
+        public GeneticDriver TargetDriver => targetDriver;
 
         public BooleanGeneticTarget(BooleanGeneticDriver driver)
             : this(driver, Random.Range(0f, 1f) > .5f)

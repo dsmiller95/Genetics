@@ -46,6 +46,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         public FloatGeneticDriver targetDriver;
         public float minValue;
         public float maxValue;
+        public GeneticDriver TargetDriver => targetDriver;
 
         public FloatGeneticTarget()
         {

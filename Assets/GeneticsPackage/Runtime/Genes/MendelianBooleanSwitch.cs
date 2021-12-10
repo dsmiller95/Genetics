@@ -21,7 +21,7 @@ namespace Genetics.Genes
             end = new GeneIndex(originIndex + volatility)
         };
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
+        public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(switchOutput, out var _))
             {
@@ -31,6 +31,7 @@ namespace Genetics.Genes
             var booleanOutput = fullChromosomes.Any(x => HammingUtilities.EvenSplitHammingWeight(x.SampleBasePairs(span)));
 
             editorHandle.SetGeneticDriverData(switchOutput, booleanOutput);
+            return true;
         }
 
         public override IEnumerable<GeneticDriver> GetInputs()

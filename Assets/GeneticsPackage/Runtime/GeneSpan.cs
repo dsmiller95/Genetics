@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Genetics
 {
@@ -14,6 +13,12 @@ namespace Genetics
         /// the last index this gene takes up space for
         /// </summary>
         public GeneIndex end;
+
+        public static readonly GeneSpan INVALID = new GeneSpan
+        {
+            start = GeneIndex.INVALID,
+            end = GeneIndex.INVALID
+        };
 
         public GeneSpan(GeneIndex singleGene)
         {

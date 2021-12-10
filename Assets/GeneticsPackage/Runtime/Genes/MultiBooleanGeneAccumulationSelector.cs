@@ -24,7 +24,7 @@ namespace Genetics.Genes
             end = new GeneIndex(0)
         };
 
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
+        public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(floatOutput, out var _))
             {
@@ -39,6 +39,7 @@ namespace Genetics.Genes
                 return boolVal ? 1 : 0;
             }).Sum();
             editorHandle.SetGeneticDriverData(floatOutput, outputInt);
+            return true;
         }
 
         public override IEnumerable<GeneticDriver> GetInputs()

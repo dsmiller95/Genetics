@@ -81,12 +81,18 @@ namespace Genetics
             {
                 var chromosome = chromosomes[chromosomeIndex];
                 var chromosomeData = genomeData.allChromosomes[chromosomeIndex];
-                chromosome.CompileChromosomeIntoDrivers(chromosomeData, drivers);
+                if(!chromosome.CompileChromosomeIntoDrivers(chromosomeData, drivers))
+                {
+                    return null;
+                }
             }
 
             foreach (var interpretor in geneInterpretors)
             {
-                interpretor.Evaluate(drivers, new SingleChromosomeCopy[0]);
+                if(!interpretor.Evaluate(drivers, new SingleChromosomeCopy[0]))
+                {
+                    return null;
+                }
             }
 
             drivers.Lock();

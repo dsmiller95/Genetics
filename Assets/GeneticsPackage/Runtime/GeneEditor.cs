@@ -51,11 +51,13 @@ namespace Genetics
         public abstract GeneSpan GeneUsage { get; }
 
         /// <summary>
-        /// 
+        /// evaluate this gene, put output into the genetic drivers handle. Can return false to indicate this gene causes the 
+        ///     zigote to be non viable
         /// </summary>
-        /// <param name="editorHandle"></param>
+        /// <param name="editorHandle">a handle of data</param>
         /// <param name="data">gene data including chromosomal duplicates. first dimension is unique genes, length 
         ///     equal to <see cref="GeneSize"/>. Second dimension is duplicate copies of the chromosome</param>
-        public abstract void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes);
+        /// <returns>whether the gene is valid or not</returns>
+        public abstract bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes);
     }
 }

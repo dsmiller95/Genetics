@@ -27,7 +27,7 @@ namespace Genetics.Genes
             start = new GeneIndex(originIndex),
             end = new GeneIndex(originIndex + precision)
         };
-        public override void Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
+        public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(floatOutput, out var _))
             {
@@ -47,6 +47,7 @@ namespace Genetics.Genes
                 }
             }
             editorHandle.SetGeneticDriverData(floatOutput, (float)dominantValue);
+            return true;
         }
         private double EvaluateSingleGene(SingleChromosomeCopy gene)
         {
