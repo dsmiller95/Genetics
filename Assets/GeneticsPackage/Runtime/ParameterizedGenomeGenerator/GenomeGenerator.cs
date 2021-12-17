@@ -32,41 +32,20 @@ namespace Genetics.ParameterizedGenomeGenerator
             Random randomSource,
             int nullProcessingSpacer)
         {
-            return this.GenerateGenomes(
-                nullProcessingSpacer,
-                () => genomeTarget.GenerateBaseGenomeData(randomSource),
-                genome => genome);
-        }
-
-        /// <summary>
-        /// this base implementation uses callbacks to allow other gene carriers to be used as the base unit,
-        ///     such as Seeds or any other object which may wrap a genome
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="nullProcessingSpacer"></param>
-        /// <param name="generateGeneCarrier"></param>
-        /// <param name="selectGenomeFromCarrier"></param>
-        /// <returns></returns>
-        public IEnumerable<T> GenerateGenomes<T>(
-            int nullProcessingSpacer,
-            Func<T> generateGeneCarrier,
-            Func<T, Genome> selectGenomeFromCarrier)
-            where T : class
-        {
             var processingSinceLastSpacer = 0;
 
             var depTree = new GeneticDriverDependencyTree(genomeTarget);
+            var random = new Random(UnityEngine.Random.Range(1, int.MaxValue));
 
             while (true)
             {
-                var nextGeneCarrier = generateGeneCarrier();
-                var nextGenome = selectGenomeFromCarrier(nextGeneCarrier);
+                var nextGenome = genomeTarget.GenerateBaseGenomeData(randomSource);
                 if (!varianceOverHomologous)
                 {
                     nextGenome.EnforceInvarianceOverHomologousCopies();
                 }
 
-                var targetsMatch = CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree);
+                var targetsMatch = CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree, random);
                 if (targetsMatch)
                 {
                     UnityEngine.Profiling.Profiler.BeginSample("test matching genome");
@@ -78,7 +57,7 @@ namespace Genetics.ParameterizedGenomeGenerator
 
                 if (targetsMatch)
                 {
-                    yield return nextGeneCarrier;
+                    yield return nextGenome;
                 }
                 if (processingSinceLastSpacer >= nullProcessingSpacer)
                 {
@@ -88,29 +67,60 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
-        private bool CompileGenesConditionallyRestrictedByTargets(Genome genomeData, GeneticDriverDependencyTree depTree)
+        private bool CompileGenesConditionallyRestrictedByTargets(Genome genomeData, GeneticDriverDependencyTree depTree, Random randomSource)
         {
-            var drivers = new CompiledGeneticDrivers();
-
             foreach (var target in booleanTargets)
             {
-                if (!CheckTarget(genomeData, depTree, drivers, target))
-                {
-                    return false;
-                }
+                RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
             foreach (var target in floatTargets)
             {
-                if (!CheckTarget(genomeData, depTree, drivers, target))
-                {
-                    return false;
-                }
+                RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
+            // TODO: ensure all targets still match after the rerolls, in case of overlaps
             return true;
         }
 
-        private bool CheckTarget(Genome genomeData, GeneticDriverDependencyTree depTree, CompiledGeneticDrivers drivers, IGeneticTarget target)
+        /// <summary>
+        /// reroll the genetic data supporting the specific target until it matches
+        /// </summary>
+        /// <param name="genomeData">the genome data to reroll over</param>
+        /// <param name="depTree">the dependency tree representing all the genes</param>
+        /// <param name="target">the genetic target to match</param>
+        /// <returns></returns>
+        private void RerollTargetToMatch(Genome genomeData, GeneticDriverDependencyTree depTree, IGeneticTarget target, Random randomSource)
         {
+            var node = depTree.GetNodeFromDriver(target.TargetDriver);
+            var relevantSpan = node.GetBasisSpan();
+            var rerollBuffer = new byte[relevantSpan.GetByteLength()];
+            var relevantChromosome = genomeData.allChromosomes[node.sourceEditorChromosome];
+
+            var infiniteProtecc = 1000;
+
+            while (!GenomeMatchesAndIsValid(genomeData, depTree, target))
+            {
+                if (!varianceOverHomologous)
+                {
+                    randomSource.NextBytes(rerollBuffer);
+                }
+                foreach (var chromosome in relevantChromosome.allGeneData)
+                {
+                    if (varianceOverHomologous)
+                    {
+                        randomSource.NextBytes(rerollBuffer);
+                    }
+                    chromosome.WriteIntoGeneSpan(relevantSpan, rerollBuffer);
+                }
+                if(infiniteProtecc-- <= 0)
+                {
+                    throw new Exception("infinite loop protection. could not find valid genome match");
+                }
+            }
+        }
+
+        private bool GenomeMatchesAndIsValid(Genome genomeData, GeneticDriverDependencyTree depTree, IGeneticTarget target)
+        {
+            var drivers = new CompiledGeneticDrivers();
             var node = depTree.GetNodeFromDriver(target.TargetDriver);
             if (!RecursivelyEvaluate(genomeData, drivers, node))
             {

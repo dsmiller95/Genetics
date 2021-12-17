@@ -11,7 +11,13 @@ namespace Genetics
 
         public int allelePosition;
 
+        /// <summary>
+        /// The index for this gene's data inside a byte array
+        /// </summary>
         public int IndexToByteData => allelePosition / 4;
+        /// <summary>
+        /// the position inside a byte to get this genes data
+        /// </summary>
         public int IndexInsideByte => allelePosition % 4;
 
         public GeneIndex(int index)

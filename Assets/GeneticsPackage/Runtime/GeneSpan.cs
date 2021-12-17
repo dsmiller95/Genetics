@@ -27,10 +27,38 @@ namespace Genetics
         }
         public GeneSpan(GeneSpan a, GeneSpan b)
         {
-            start = new GeneIndex(Mathf.Min(a.start.allelePosition, b.start.allelePosition));
-            end = new GeneIndex(Mathf.Max(a.end.allelePosition, b.end.allelePosition));
+            if (a == INVALID)
+            {
+                if (b == INVALID)
+                {
+                    start = GeneIndex.INVALID;
+                    end = GeneIndex.INVALID;
+                }
+                else
+                {
+                    start = b.start;
+                    end = b.end;
+                }
+            }
+            else
+            {
+                if (b == INVALID)
+                {
+                    start = a.start;
+                    end = a.end;
+                }
+                else
+                {
+                    start = new GeneIndex(Mathf.Min(a.start.allelePosition, b.start.allelePosition));
+                    end = new GeneIndex(Mathf.Max(a.end.allelePosition, b.end.allelePosition));
+                }
+            }
         }
 
+        public int GetByteLength()
+        {
+            return (end.IndexToByteData - start.IndexToByteData + 1);
+        }
 
         public bool CollidesWith(GeneSpan other)
         {
@@ -47,5 +75,19 @@ namespace Genetics
         }
 
         public int Length => end.allelePosition - start.allelePosition;
+
+        public static GeneSpan operator +(GeneSpan a, GeneSpan b)
+        {
+            return new GeneSpan(a, b);
+        }
+
+        public static bool operator ==(GeneSpan a, GeneSpan b)
+        {
+            return a.start == b.start && a.end == b.end;
+        }
+        public static bool operator !=(GeneSpan a, GeneSpan b)
+        {
+            return !(a == b);
+        }
     }
 }

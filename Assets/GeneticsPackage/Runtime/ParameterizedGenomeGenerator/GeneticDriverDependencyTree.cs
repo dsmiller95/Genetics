@@ -41,6 +41,16 @@ namespace Genetics.ParameterizedGenomeGenerator
                 }
             }
 
+            public GeneSpan GetBasisSpan()
+            {
+                var sourceSpan = sourceEditor.GeneUsage;
+                foreach (var input in inputs)
+                {
+                    sourceSpan += input.GetBasisSpan();
+                }
+                return sourceSpan;
+            }
+
             public override bool Equals(object obj)
             {
                 if (obj is GeneticDriverNode node)

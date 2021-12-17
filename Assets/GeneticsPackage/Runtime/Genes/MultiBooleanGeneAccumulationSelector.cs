@@ -18,11 +18,7 @@ namespace Genetics.Genes
         public FloatGeneticDriver floatOutput;
         public BooleanGeneticDriver[] booleanInputs;
 
-        public override GeneSpan GeneUsage => new GeneSpan
-        {
-            start = new GeneIndex(0),
-            end = new GeneIndex(0)
-        };
+        public override GeneSpan GeneUsage => GeneSpan.INVALID;
 
         public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {

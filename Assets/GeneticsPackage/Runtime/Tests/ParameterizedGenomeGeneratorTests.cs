@@ -318,6 +318,55 @@ namespace Genetics
             Assert.AreEqual(expectedNulls, totalNulls, expectedNulls * 0.2f);
             Assert.AreEqual(100, totalMatches);
         }
+        [Test]
+        public void GenomeWithSingleDiscreteSelectorGeneratesInfertileResults()
+        {
+            var discreteGene = ScriptableObject.CreateInstance<DiscreteSelectorGene>();
+            var float1 = FloatDriver();
+            discreteGene.discreteOutput = float1;
+            discreteGene.maxDiscreteOutputClasses = 6;
+            discreteGene.enforceUniqueCombination = true;
+
+            var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
+            chromosome.chromosomeCopies = 1;
+            chromosome.genes = new GeneEditor[] { discreteGene };
+
+            var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
+            genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
+
+            var geneGenerator = new GenomeGenerator()
+            {
+                booleanTargets = new BooleanGeneticTarget[] { },
+                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 1.9f, 2.1f) },
+                genomeTarget = genomeEditor
+            };
+
+            var newGenes = geneGenerator.GenerateGenomes(new System.Random(0), 10);
+
+            var totalNulls = 0;
+            var totalMatches = 0;
+            foreach (var genome in newGenes)
+            {
+                if (genome == null)
+                {
+                    totalNulls++;
+                    continue;
+                }
+                Assert.IsNotNull(genome);
+                var drivers = genomeEditor.CompileGenome(genome);
+                Assert.IsTrue(drivers.TryGetGeneticData(float1, out var floatValue));
+                Assert.AreEqual(2f, floatValue, 0.00001f);
+                totalMatches++;
+                if (totalMatches >= 100)
+                {
+                    break;
+                }
+            }
+            Assert.AreEqual(100, totalMatches);
+            var probabilityOfHittingTarget = 1f / 16f;
+            var expected = (1f / probabilityOfHittingTarget) * 10f;
+            Assert.AreEqual(expected, totalNulls, expected * 0.1f);
+        }
 
         private int currentGeneIndex;
         private BooleanGeneticDriver BoolDriver()

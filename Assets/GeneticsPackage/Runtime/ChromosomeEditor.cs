@@ -32,17 +32,41 @@ namespace Genetics
         public byte SampleIndex(GeneIndex index)
         {
             var byteIndex = index.IndexToByteData;
-            var shift = index.IndexInsideByte * 2;
+            var shift = (3 - index.IndexInsideByte) * 2;
             var mask = 0b11 << shift;
             return (byte)((chromosomeData[byteIndex] & mask) >> shift);
         }
         public void SetBasePairAtIndex(GeneIndex index, byte newBasePair)
         {
             var byteIndex = index.IndexToByteData;
-            var shift = index.IndexInsideByte * 2;
+            var shift = (3 - index.IndexInsideByte) * 2;
 
             var mask = 0b11 << shift;
             chromosomeData[byteIndex] = (byte)((chromosomeData[byteIndex] & ~mask) | ((newBasePair << shift) & mask));
+        }
+
+        public void WriteIntoGeneSpan(GeneSpan span, byte[] buffer)
+        {
+            var targetStartIndex = span.start.IndexToByteData;
+            var sourceStartIndex = 0;
+            if(span.start.IndexInsideByte != 0) {
+                var copyMask = (0b11111111 >> (span.start.IndexInsideByte * 2));
+                chromosomeData[targetStartIndex] = (byte)((chromosomeData[targetStartIndex] & ~copyMask) | (buffer[sourceStartIndex] & copyMask));
+                targetStartIndex++;
+                sourceStartIndex++;
+            }
+
+            var targetEndIndex = span.end.IndexToByteData;
+            var sourceEndIndex = buffer.Length - 1;
+            if(span.end.IndexInsideByte != 0)
+            {
+                var copyMask = (0b11111111 << ((4 - span.end.IndexInsideByte) * 2));
+                chromosomeData[targetEndIndex] = (byte)((chromosomeData[targetEndIndex] & ~copyMask) | (buffer[sourceEndIndex] & copyMask));
+                targetEndIndex--;
+                sourceEndIndex--;
+            }
+
+            System.Array.Copy(buffer, sourceStartIndex, chromosomeData, targetStartIndex, targetEndIndex - targetStartIndex + 1);
         }
     }
 
