@@ -69,6 +69,11 @@ namespace Genetics
             return Genome.GetBaseGenes(chromosomes, random);
         }
 
+        /// <summary>
+        /// compiles a genome into all relevant gentic drivers
+        /// </summary>
+        /// <param name="genomeData">the raw genome data</param>
+        /// <returns>a set of drivers if fertile. if infertile, returns null</returns>
         public CompiledGeneticDrivers CompileGenome(Genome genomeData)
         {
             var drivers = new CompiledGeneticDrivers();

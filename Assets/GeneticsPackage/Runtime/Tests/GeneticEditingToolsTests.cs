@@ -1,9 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using Genetics.Genes;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEngine.TestTools;
 
 namespace Genetics
 {
@@ -12,15 +7,12 @@ namespace Genetics
         [Test]
         public void SingleChromosomeCopySamplesAtIndex()
         {
-            var singleChromosomeCopy = new SingleChromosomeCopy
-            {
-                chromosomeData = new byte[]
+            var singleChromosomeCopy = new SingleChromosomeCopy(new byte[]
                 {
                     0b00011011,
                     0b10011111,
                     0b01010110
-                }
-            };
+                }, new GeneIndex(12));
             Assert.AreEqual(0, singleChromosomeCopy.SampleIndex(new GeneIndex(0)));
             Assert.AreEqual(1, singleChromosomeCopy.SampleIndex(new GeneIndex(1)));
             Assert.AreEqual(2, singleChromosomeCopy.SampleIndex(new GeneIndex(2)));
@@ -32,15 +24,12 @@ namespace Genetics
         [Test]
         public void SingleChromosomeCopySetsAndSamplesAtIndex()
         {
-            var data = new SingleChromosomeCopy
-            {
-                chromosomeData = new byte[]
+            var data = new SingleChromosomeCopy(new byte[]
                 {
                     0b00011011,
                     0b10011111,
                     0b01010110
-                }
-            };
+                }, new GeneIndex(12));
             Assert.AreEqual(1, data.SampleIndex(new GeneIndex(1)));
             data.SetBasePairAtIndex(new GeneIndex(1), 3);
             Assert.AreEqual(3, data.SampleIndex(new GeneIndex(1)));
@@ -53,15 +42,12 @@ namespace Genetics
         [Test]
         public void SingleChromosomeCopySamplesRange()
         {
-            var singleChromosomeCopy = new SingleChromosomeCopy
-            {
-                chromosomeData = new byte[]
+            var singleChromosomeCopy = new SingleChromosomeCopy(new byte[]
                 {
                     0b11000111,
                     0b10011111,
                     0b01010110
-                }
-            };
+                }, new GeneIndex(12));
 
             Assert.AreEqual(0b11000111, singleChromosomeCopy.SampleBasePairs(new GeneSpan()
             {
@@ -83,17 +69,14 @@ namespace Genetics
         [Test]
         public void SingleChromosomeCopyWritesGeneSpan()
         {
-            var data = new SingleChromosomeCopy
-            {
-                chromosomeData = new byte[]
+            var data = new SingleChromosomeCopy(new byte[]
                 {
                     0b00011011,
                     0b10011111,
                     0b11010110,
                     0b11000000,
                     0b00110100,
-                }
-            };
+                }, new GeneIndex(20));
 
             var writtenData = new byte[]
             {
@@ -114,6 +97,46 @@ namespace Genetics
                 0b10011100,
                 0b01010101,
                 0b10000000,
+                0b00110100,
+            };
+
+            data.WriteIntoGeneSpan(writeSpan, writtenData);
+            for (int i = 0; i < expectedData.Length; i++)
+            {
+                Assert.AreEqual(expectedData[i], data.chromosomeData[i], $"Expected {System.Convert.ToString(data.chromosomeData[i], 2)} to be {System.Convert.ToString(expectedData[i], 2)} at index {i}");
+            }
+        }
+
+        [Test]
+        public void SingleChromosomeCopyWritesGeneSpanWhenAtBorders()
+        {
+            var data = new SingleChromosomeCopy(new byte[]
+                {
+                    0b00011011,
+                    0b10011111,
+                    0b11010110,
+                    0b11000000,
+                    0b00110100,
+                }, new GeneIndex(20));
+
+            var writtenData = new byte[]
+            {
+                0b11001100,
+                0b01010101,
+            };
+
+            var writeSpan = new GeneSpan()
+            {
+                start = new GeneIndex(4),
+                end = new GeneIndex(12)
+            };
+
+            var expectedData = new byte[]
+            {
+                0b00011011,
+                0b11001100,
+                0b01010101,
+                0b11000000,
                 0b00110100,
             };
 

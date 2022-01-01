@@ -35,13 +35,11 @@ namespace Genetics
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(0), 10);
 
-            var totalNulls = 0;
             var totalMatches = 0;
             foreach (var genome in newGenes)
             {
                 if (genome == null)
                 {
-                    totalNulls++;
                     continue;
                 }
                 Assert.IsNotNull(genome);
@@ -54,9 +52,6 @@ namespace Genetics
                     break;
                 }
             }
-            Assert.AreEqual(10, totalMatches);
-            var probabilityOfHittingTarget = 1f/2f;
-            Assert.AreEqual(1f/ probabilityOfHittingTarget, totalNulls, 1);
         }
         [Test]
         public void GenomeWithSingleFloatGeneratesMatchesInRange()
@@ -84,13 +79,11 @@ namespace Genetics
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(0), 10);
 
-            var totalNulls = 0;
             var totalMatches = 0;
             foreach (var genome in newGenes)
             {
                 if (genome == null)
                 {
-                    totalNulls++;
                     continue;
                 }
                 Assert.IsNotNull(genome);
@@ -103,10 +96,6 @@ namespace Genetics
                     break;
                 }
             }
-            Assert.AreEqual(100, totalMatches);
-            var probabilityOfHittingTarget = 1f/10f;
-            var expected = (1f / probabilityOfHittingTarget) * 10f;
-            Assert.AreEqual(expected, totalNulls, expected * 0.1f);
         }
         [Test]
         public void GenomeWithSingleFloatAndBooleanGeneratesMatches()
@@ -140,13 +129,11 @@ namespace Genetics
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(1), 10);
 
-            var totalNulls = 0;
             var totalMatches = 0;
             foreach (var genome in newGenes)
             {
                 if (genome == null)
                 {
-                    totalNulls++;
                     continue;
                 }
                 Assert.IsNotNull(genome);
@@ -162,10 +149,59 @@ namespace Genetics
                 }
             }
             Assert.AreEqual(100, totalMatches);
-            var probabilityOfMatchingBool = 1f / 2f;
-            var probabilityOfMatchingFloat = 1f / 10f;
-            var expected = 1f / (probabilityOfMatchingBool * probabilityOfMatchingFloat) * 10;
-            Assert.AreEqual(expected, totalNulls, expected * 0.1f);
+        }
+        [Test]
+        public void GenomeWithOverlappingSingleFloatAndBooleanGeneratesMatches()
+        {
+            var floatGene = ScriptableObject.CreateInstance<MendelianFloatGene>();
+            var float1 = FloatDriver();
+            floatGene.originIndex = 0;
+            floatGene.floatOutput = float1;
+            floatGene.rangeMin = 0f;
+            floatGene.rangeMax = 10f;
+            floatGene.relativeDominantRange = 1;
+
+            var boolGene = ScriptableObject.CreateInstance<MendelianBooleanSwitch>();
+            var bool1 = BoolDriver();
+            boolGene.switchOutput = bool1;
+            boolGene.originIndex = floatGene.precision - 2;
+
+            var chromosome = ScriptableObject.CreateInstance<ChromosomeEditor>();
+            chromosome.chromosomeCopies = 1;
+            chromosome.genes = new GeneEditor[] { floatGene, boolGene };
+
+            var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
+            genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
+
+            var geneGenerator = new GenomeGenerator()
+            {
+                booleanTargets = new BooleanGeneticTarget[] { new BooleanGeneticTarget(bool1, false) },
+                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 4, 5) },
+                genomeTarget = genomeEditor
+            };
+
+            var newGenes = geneGenerator.GenerateGenomes(new System.Random(1), 10);
+
+            var totalMatches = 0;
+            foreach (var genome in newGenes)
+            {
+                if (genome == null)
+                {
+                    continue;
+                }
+                Assert.IsNotNull(genome);
+                var drivers = genomeEditor.CompileGenome(genome);
+                Assert.IsTrue(drivers.TryGetGeneticData(float1, out var floatValue));
+                Assert.AreEqual(4.5f, floatValue, 0.5f);
+                Assert.IsTrue(drivers.TryGetGeneticData(bool1, out var boolVal));
+                Assert.AreEqual(false, boolVal);
+                totalMatches++;
+                if (totalMatches >= 100)
+                {
+                    break;
+                }
+            }
+            Assert.AreEqual(100, totalMatches);
         }
         [Test]
         public void GenomeWithSingleFloatAndBooleanMultiChromosomeGeneratesMatchesMoreRarely()
@@ -198,13 +234,11 @@ namespace Genetics
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(1), 10);
 
-            var totalNulls = 0;
             var totalMatches = 0;
             foreach (var genome in newGenes)
             {
                 if (genome == null)
                 {
-                    totalNulls++;
                     continue;
                 }
                 Assert.IsNotNull(genome);
@@ -219,11 +253,6 @@ namespace Genetics
                     break;
                 }
             }
-            Assert.AreEqual(100, totalMatches);
-            var probabilityOfMatchingBool = 1f / 4f;
-            var probabilityOfMatchingFloat = 2 * .1 * .4 + .1 * .1;
-            var expected = 1f / (probabilityOfMatchingBool * probabilityOfMatchingFloat) * 10;
-            Assert.AreEqual(expected, totalNulls, expected * 0.1f);
         }
         [Test]
         public void GenomeWithImpossibleTargetInfiniteNulls()
@@ -285,22 +314,11 @@ namespace Genetics
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(2), 10);
 
-            var probabilityOfMatch =
-                    .25 * .25 * .25 * .25 * .25 +
-                5 * .75 * .25 * .25 * .25 * .25;
-            var expectedNulls = 1 / (probabilityOfMatch) * 10;
-
-            var totalNulls = 0;
             var totalMatches = 0;
-            foreach (var genome in newGenes)
+            foreach (var genome in newGenes.Take(10000))
             {
                 if (genome == null)
                 {
-                    totalNulls++;
-                    if(totalNulls >= 10 * expectedNulls)
-                    {
-                        break;
-                    }
                     continue;
                 }
                 Assert.IsNotNull(genome);
@@ -314,12 +332,10 @@ namespace Genetics
                     break;
                 }
             }
-            // for some reason the estimate is off more than usual here \shrug
-            Assert.AreEqual(expectedNulls, totalNulls, expectedNulls * 0.2f);
             Assert.AreEqual(100, totalMatches);
         }
         [Test]
-        public void GenomeWithSingleDiscreteSelectorGeneratesInfertileResults()
+        public void GenomeWithSingleDiscreteSelectorFiltersOutInfertileResults()
         {
             var discreteGene = ScriptableObject.CreateInstance<DiscreteSelectorGene>();
             var float1 = FloatDriver();
@@ -343,17 +359,16 @@ namespace Genetics
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(0), 10);
 
-            var totalNulls = 0;
             var totalMatches = 0;
             foreach (var genome in newGenes)
             {
                 if (genome == null)
                 {
-                    totalNulls++;
                     continue;
                 }
                 Assert.IsNotNull(genome);
                 var drivers = genomeEditor.CompileGenome(genome);
+                Assert.IsNotNull(drivers);
                 Assert.IsTrue(drivers.TryGetGeneticData(float1, out var floatValue));
                 Assert.AreEqual(2f, floatValue, 0.00001f);
                 totalMatches++;
@@ -363,9 +378,6 @@ namespace Genetics
                 }
             }
             Assert.AreEqual(100, totalMatches);
-            var probabilityOfHittingTarget = 1f / 16f;
-            var expected = (1f / probabilityOfHittingTarget) * 10f;
-            Assert.AreEqual(expected, totalNulls, expected * 0.1f);
         }
 
         private int currentGeneIndex;

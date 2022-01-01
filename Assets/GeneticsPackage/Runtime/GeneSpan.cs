@@ -3,6 +3,7 @@
 namespace Genetics
 {
     [System.Serializable]
+    [System.Diagnostics.DebuggerDisplay("{ToString(),nq}")]
     public struct GeneSpan
     {
         /// <summary>
@@ -57,7 +58,7 @@ namespace Genetics
 
         public int GetByteLength()
         {
-            return (end.IndexToByteData - start.IndexToByteData + 1);
+            return ((end - 1).IndexToByteData - start.IndexToByteData + 1);
         }
 
         public bool CollidesWith(GeneSpan other)
@@ -88,6 +89,11 @@ namespace Genetics
         public static bool operator !=(GeneSpan a, GeneSpan b)
         {
             return !(a == b);
+        }
+
+        public override string ToString()
+        {
+            return $"[{start}, {end})";
         }
     }
 }

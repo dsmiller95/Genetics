@@ -45,21 +45,26 @@ namespace Genetics.ParameterizedGenomeGenerator
                     nextGenome.EnforceInvarianceOverHomologousCopies();
                 }
 
-                var targetsMatch = CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree, random);
-                if (targetsMatch)
+                // continue rerolling until no rerolls have to be made, meaning the entire genome matches
+                while (CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree, random))
                 {
-                    UnityEngine.Profiling.Profiler.BeginSample("test matching genome");
-                    // make sure the full genome is valid
-                    targetsMatch = genomeTarget.CompileGenome(nextGenome) != null;
-                    UnityEngine.Profiling.Profiler.EndSample();
-                }
-                processingSinceLastSpacer++;
+                    if (processingSinceLastSpacer++ >= nullProcessingSpacer)
+                    {
+                        yield return null;
+                        processingSinceLastSpacer = 0;
+                    }
 
-                if (targetsMatch)
+                }
+                UnityEngine.Profiling.Profiler.BeginSample("test matching genome");
+                // make sure the full genome is valid
+                // TODO: ensure fertility in the rerolling step
+                var genomeIsFertile = genomeTarget.CompileGenome(nextGenome) != null;
+                UnityEngine.Profiling.Profiler.EndSample();
+                if (genomeIsFertile)
                 {
                     yield return nextGenome;
                 }
-                if (processingSinceLastSpacer >= nullProcessingSpacer)
+                if (processingSinceLastSpacer++ >= nullProcessingSpacer)
                 {
                     yield return null;
                     processingSinceLastSpacer = 0;
@@ -67,18 +72,26 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
+        /// <summary>
+        /// attempt to get the genome to match by rerolling each target indivudally, in some order
+        /// </summary>
+        /// <param name="genomeData"></param>
+        /// <param name="depTree">structure holding the layout of the genetic drivers</param>
+        /// <param name="randomSource"></param>
+        /// <returns>true if rerolls were made to attempt to match. false if no rerolls happened, that is, the genome already matches every target and no changes were made</returns>
         private bool CompileGenesConditionallyRestrictedByTargets(Genome genomeData, GeneticDriverDependencyTree depTree, Random randomSource)
         {
+            var changeMade = false;
             foreach (var target in booleanTargets)
             {
-                RerollTargetToMatch(genomeData, depTree, target, randomSource);
+                changeMade |= RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
             foreach (var target in floatTargets)
             {
-                RerollTargetToMatch(genomeData, depTree, target, randomSource);
+                changeMade |= RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
-            // TODO: ensure all targets still match after the rerolls, in case of overlaps
-            return true;
+            // TODO: ensure all targets still match after the rerolls, in case of overlaps. if no match then retry rerolls until complete match
+            return changeMade;
         }
 
         /// <summary>
@@ -87,8 +100,8 @@ namespace Genetics.ParameterizedGenomeGenerator
         /// <param name="genomeData">the genome data to reroll over</param>
         /// <param name="depTree">the dependency tree representing all the genes</param>
         /// <param name="target">the genetic target to match</param>
-        /// <returns></returns>
-        private void RerollTargetToMatch(Genome genomeData, GeneticDriverDependencyTree depTree, IGeneticTarget target, Random randomSource)
+        /// <returns>true if any rerolls were perfomed. false otherwise, in which case the genome already matched the target</returns>
+        private bool RerollTargetToMatch(Genome genomeData, GeneticDriverDependencyTree depTree, IGeneticTarget target, Random randomSource)
         {
             var node = depTree.GetNodeFromDriver(target.TargetDriver);
             var relevantSpan = node.GetBasisSpan();
@@ -97,6 +110,7 @@ namespace Genetics.ParameterizedGenomeGenerator
 
             var infiniteProtecc = 1000;
 
+            var rerolled = false;
             while (!GenomeMatchesAndIsValid(genomeData, depTree, target))
             {
                 if (!varianceOverHomologous)
@@ -111,11 +125,17 @@ namespace Genetics.ParameterizedGenomeGenerator
                     }
                     chromosome.WriteIntoGeneSpan(relevantSpan, rerollBuffer);
                 }
+#if UNITY_EDITOR
+                // this could theoretically cause very unlikely crashes if included in a prod build. all genetic targets should be 
+                //  verified as plausable before publishing the game
                 if(infiniteProtecc-- <= 0)
                 {
-                    throw new Exception("infinite loop protection. could not find valid genome match");
+                    throw new Exception($"infinite loop protection. could not find valid driver match after 1000 rerolls on gene:{node.sourceEditor.name}");
                 }
+#endif
+                rerolled = true;
             }
+            return rerolled;
         }
 
         private bool GenomeMatchesAndIsValid(Genome genomeData, GeneticDriverDependencyTree depTree, IGeneticTarget target)

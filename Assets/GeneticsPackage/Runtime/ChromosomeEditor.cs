@@ -7,9 +7,49 @@ using UnityEngine;
 namespace Genetics
 {
     [System.Serializable]
+    [System.Diagnostics.DebuggerDisplay("{ToString(),nq}")]
     public class SingleChromosomeCopy
     {
+        public static char[] AlleleCharacters = new[] { 'A', 'T', 'C', 'G' };
+
         public byte[] chromosomeData;
+        public GeneIndex endIndex;
+
+        /// <summary>
+        /// create a new chromosome copy
+        /// </summary>
+        /// <param name="chromosomeData">the raw chromosome data</param>
+        /// <param name="endIndex">the index after the last valid gene index. used to indicate the true size of this chromosome, and potentially
+        ///     ignore a partial byte at the end</param>
+        public SingleChromosomeCopy(byte[] chromosomeData, GeneIndex endIndex)
+        {
+            this.chromosomeData = chromosomeData;
+            this.endIndex = endIndex;
+        }
+        public SingleChromosomeCopy(SingleChromosomeCopy[] sourceChromosomes, System.Random random)
+        {
+            var chromosomeCopies = sourceChromosomes.Length;
+            this.chromosomeData = new byte[sourceChromosomes[0].chromosomeData.Length];
+            this.endIndex = sourceChromosomes[0].endIndex;
+            for (int i = 0; i < sourceChromosomes.Length; i++)
+            {
+                if(sourceChromosomes[i].endIndex != this.endIndex)
+                {
+                    throw new System.Exception("invalid chromosome set to select from. all chromosomes must be of uniform size");
+                }
+            }
+            for (int i = 0; i < sourceChromosomes[0].chromosomeData.Length; i++)
+            {
+                byte resultByte = 0;
+                for (int filterWindow = 0b11; filterWindow < byte.MaxValue; filterWindow = filterWindow << 2)
+                {
+                    var geneSelection = random.Next(0, chromosomeCopies);
+                    int selectedBasePair = sourceChromosomes[geneSelection].chromosomeData[i] & filterWindow;
+                    resultByte = (byte)(resultByte | selectedBasePair);
+                }
+                chromosomeData[i] = resultByte;
+            }
+        }
 
         public ulong SampleBasePairs(GeneSpan span)
         {
@@ -56,7 +96,7 @@ namespace Genetics
                 sourceStartIndex++;
             }
 
-            var targetEndIndex = span.end.IndexToByteData;
+            var targetEndIndex = (span.end - 1).IndexToByteData;
             var sourceEndIndex = buffer.Length - 1;
             if(span.end.IndexInsideByte != 0)
             {
@@ -67,6 +107,16 @@ namespace Genetics
             }
 
             System.Array.Copy(buffer, sourceStartIndex, chromosomeData, targetStartIndex, targetEndIndex - targetStartIndex + 1);
+        }
+
+        public override string ToString()
+        {
+            var chars = new char[endIndex.allelePosition];
+            for (var geneIndex = new GeneIndex(0); geneIndex < endIndex; geneIndex++)
+            {
+                chars[geneIndex.allelePosition] = AlleleCharacters[SampleIndex(geneIndex)];
+            }
+            return new string(chars);
         }
     }
 
@@ -107,23 +157,8 @@ namespace Genetics
         /// <returns></returns>
         private SingleChromosomeCopy SampleSingleCopyFromChromosome()
         {
-            var chromosomeCopies = allGeneData.Length;
-            var resultingChromosome = new byte[allGeneData[0].chromosomeData.Length];
-            for (int i = 0; i < allGeneData[0].chromosomeData.Length; i++)
-            {
-                byte resultByte = 0;
-                for (int filterWindow = 0b11; filterWindow < byte.MaxValue; filterWindow = filterWindow << 2)
-                {
-                    var geneSelection = Random.Range(0, chromosomeCopies);
-                    int selectedBasePair = allGeneData[geneSelection].chromosomeData[i] & filterWindow;
-                    resultByte = (byte)(resultByte | selectedBasePair);
-                }
-                resultingChromosome[i] = resultByte;
-            }
-            return new SingleChromosomeCopy
-            {
-                chromosomeData = resultingChromosome
-            };
+            var randomSource = new System.Random(Random.Range(1, int.MaxValue));
+            return new SingleChromosomeCopy(allGeneData, randomSource);
         }
 
         public static Chromosome GetBaseGenes(ChromosomeEditor geneGenerators, System.Random random)
@@ -131,14 +166,12 @@ namespace Genetics
             var geneData = new SingleChromosomeCopy[geneGenerators.chromosomeCopies];
 
             var geneticSize = geneGenerators.ChromosomeGeneticSize();
+            var byteSize = geneGenerators.BytesRequiredForChromosome();
             for (int chromosomeCopy = 0; chromosomeCopy < geneData.Length; chromosomeCopy++)
             {
-                var bytes = new byte[geneticSize.IndexToByteData + 1];
+                var bytes = new byte[byteSize];
                 random.NextBytes(bytes);
-                geneData[chromosomeCopy] = new SingleChromosomeCopy
-                {
-                    chromosomeData = bytes
-                };
+                geneData[chromosomeCopy] = new SingleChromosomeCopy(bytes, geneticSize);
             }
 
             return new Chromosome
@@ -164,11 +197,15 @@ namespace Genetics
             var aggregateSpan = genes
                 .Select(x => x.GeneUsage)
                 .Aggregate((accumulate, next) => new GeneSpan(accumulate, next));
-            if(aggregateSpan.start.allelePosition > 0)
+            if (aggregateSpan.start.allelePosition > 0)
             {
                 Debug.LogWarning($"chromosome {this.name} does not use the 0th allele, leading to wasted space");
             }
             return aggregateSpan.end;
+        }
+        public int BytesRequiredForChromosome()
+        {
+            return (ChromosomeGeneticSize() - 1).IndexToByteData + 1;
         }
 
         /// <summary>
@@ -179,7 +216,7 @@ namespace Genetics
         /// <returns>true if the zygote is viable, false if fertalization fails</returns>
         public bool CompileChromosomeIntoDrivers(Chromosome chromosome, CompiledGeneticDrivers drivers)
         {
-            var expecteByteSize = ChromosomeGeneticSize().IndexToByteData + 1;
+            var expecteByteSize = BytesRequiredForChromosome();
             if (expecteByteSize != chromosome.allGeneData[0].chromosomeData.Length)
             {
                 Debug.LogError($"genome does not match current genes! Genome data size: {expecteByteSize}, current gene size: {chromosome.allGeneData[0].chromosomeData.Length}. Resetting genome data");

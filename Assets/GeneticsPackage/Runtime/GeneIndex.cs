@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Genetics
 {
     [System.Serializable]
+    [System.Diagnostics.DebuggerDisplay("{ToString(),nq}")]
     public struct GeneIndex
     {
         public static readonly GeneIndex INVALID = new GeneIndex(-1);
@@ -43,6 +44,22 @@ namespace Genetics
         {
             return new GeneIndex(a.allelePosition + b.allelePosition);
         }
+        public static GeneIndex operator +(GeneIndex a, int b)
+        {
+            return new GeneIndex(a.allelePosition + b);
+        }
+        public static GeneIndex operator -(GeneIndex a, GeneIndex b)
+        {
+            return new GeneIndex(a.allelePosition - b.allelePosition);
+        }
+        public static GeneIndex operator -(GeneIndex a, int b)
+        {
+            return new GeneIndex(a.allelePosition - b);
+        }
+        public static GeneIndex operator ++(GeneIndex a)
+        {
+            return new GeneIndex(a.allelePosition + 1);
+        }
 
         public static bool operator ==(GeneIndex a, GeneIndex b)
         {
@@ -51,6 +68,20 @@ namespace Genetics
         public static bool operator !=(GeneIndex a, GeneIndex b)
         {
             return a.allelePosition != b.allelePosition;
+        }
+        public static bool operator <(GeneIndex a, GeneIndex b)
+        {
+            return a.allelePosition < b.allelePosition;
+        }
+        public static bool operator >(GeneIndex a, GeneIndex b)
+        {
+            return a.allelePosition > b.allelePosition;
+        }
+
+
+        public override string ToString()
+        {
+            return $"G:{allelePosition}";
         }
     }
 
