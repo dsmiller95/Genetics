@@ -20,6 +20,7 @@ namespace Genetics.Genes
             start = new GeneIndex(originIndex),
             end = new GeneIndex(originIndex + volatility)
         };
+        public override bool AlwaysValid => true;
 
         public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {

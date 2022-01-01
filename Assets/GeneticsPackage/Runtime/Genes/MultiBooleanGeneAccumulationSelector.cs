@@ -19,6 +19,7 @@ namespace Genetics.Genes
         public BooleanGeneticDriver[] booleanInputs;
 
         public override GeneSpan GeneUsage => GeneSpan.INVALID;
+        public override bool AlwaysValid => true;
 
         public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {

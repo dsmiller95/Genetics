@@ -36,6 +36,11 @@ namespace Genetics.ParameterizedGenomeGenerator
 
             var depTree = new GeneticDriverDependencyTree(genomeTarget);
             var random = new Random(UnityEngine.Random.Range(1, int.MaxValue));
+            var fertilityChecksInOrder = depTree.GetGeneticDriversSortedLeafFirst()
+                .Where(x => !x.sourceEditor.AlwaysValid)
+                .Distinct(new NodeEqualityComparitorByGene())
+                .Select(x => new FertileGeneticTarget(x.driver))
+                .ToList();
 
             while (true)
             {
@@ -46,7 +51,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                 }
 
                 // continue rerolling until no rerolls have to be made, meaning the entire genome matches
-                while (CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree, random))
+                while (CompileGenesConditionallyRestrictedByTargets(nextGenome, depTree, fertilityChecksInOrder, random))
                 {
                     if (processingSinceLastSpacer++ >= nullProcessingSpacer)
                     {
@@ -54,20 +59,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                         processingSinceLastSpacer = 0;
                     }
                 }
-                UnityEngine.Profiling.Profiler.BeginSample("test matching genome");
-                // make sure the full genome is valid
-                // TODO: ensure fertility in the rerolling step
-                var genomeIsFertile = genomeTarget.CompileGenome(nextGenome) != null;
-                UnityEngine.Profiling.Profiler.EndSample();
-                if (genomeIsFertile)
-                {
-                    yield return nextGenome;
-                }
-                if (processingSinceLastSpacer++ >= nullProcessingSpacer)
-                {
-                    yield return null;
-                    processingSinceLastSpacer = 0;
-                }
+                yield return nextGenome;
             }
         }
 
@@ -78,8 +70,13 @@ namespace Genetics.ParameterizedGenomeGenerator
         /// <param name="depTree">structure holding the layout of the genetic drivers</param>
         /// <param name="randomSource"></param>
         /// <returns>true if rerolls were made to attempt to match. false if no rerolls happened, that is, the genome already matches every target and no changes were made</returns>
-        private bool CompileGenesConditionallyRestrictedByTargets(Genome genomeData, GeneticDriverDependencyTree depTree, Random randomSource)
+        private bool CompileGenesConditionallyRestrictedByTargets(
+            Genome genomeData,
+            GeneticDriverDependencyTree depTree,
+            List<FertileGeneticTarget> fertitlityChecks,
+            Random randomSource)
         {
+            UnityEngine.Profiling.Profiler.BeginSample("rerolling and rechecking");
             var changeMade = false;
             foreach (var target in booleanTargets)
             {
@@ -89,7 +86,11 @@ namespace Genetics.ParameterizedGenomeGenerator
             {
                 changeMade |= RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
-            // TODO: ensure all targets still match after the rerolls, in case of overlaps. if no match then retry rerolls until complete match
+            foreach (var target in fertitlityChecks)
+            {
+                changeMade |= RerollTargetToMatch(genomeData, depTree, target, randomSource);
+            }
+            UnityEngine.Profiling.Profiler.EndSample();
             return changeMade;
         }
 

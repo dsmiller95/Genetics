@@ -27,6 +27,8 @@ namespace Genetics.Genes
             start = new GeneIndex(originIndex),
             end = new GeneIndex(originIndex + precision)
         };
+        public override bool AlwaysValid => true;
+
         public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(floatOutput, out var _))

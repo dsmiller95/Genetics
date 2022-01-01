@@ -51,6 +51,11 @@ namespace Genetics
         public abstract GeneSpan GeneUsage { get; }
 
         /// <summary>
+        /// If this gene will always be valid regardles of underlying genetic information
+        /// </summary>
+        public abstract bool AlwaysValid { get; }
+
+        /// <summary>
         /// evaluate this gene, put output into the genetic drivers handle. Can return false to indicate this gene causes the 
         ///     zigote to be non viable
         /// </summary>

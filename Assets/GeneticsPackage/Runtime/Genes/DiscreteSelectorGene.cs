@@ -28,6 +28,8 @@ namespace Genetics.Genes
             end = new GeneIndex(originIndex + Mathf.CeilToInt(Mathf.Log(maxDiscreteOutputClasses, 4)) + additionalVolatility)
         };
 
+        public override bool AlwaysValid => !enforceUniqueCombination;
+
         public override bool Evaluate(CompiledGeneticDrivers editorHandle, SingleChromosomeCopy[] fullChromosomes)
         {
             if (editorHandle.TryGetGeneticData(discreteOutput, out var _))
