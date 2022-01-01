@@ -53,7 +53,6 @@ namespace Genetics.ParameterizedGenomeGenerator
                         yield return null;
                         processingSinceLastSpacer = 0;
                     }
-
                 }
                 UnityEngine.Profiling.Profiler.BeginSample("test matching genome");
                 // make sure the full genome is valid

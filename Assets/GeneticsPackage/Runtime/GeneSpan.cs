@@ -91,6 +91,22 @@ namespace Genetics
             return !(a == b);
         }
 
+        public override bool Equals(object obj)
+        {
+            if(!(obj is GeneSpan other))
+            {
+                return false;
+            }
+            return other.start == start && other.end == end;
+        }
+
+        public override int GetHashCode()
+        {
+            var hash = start.GetHashCode();
+            hash ^= end.GetHashCode();
+            return hash;
+        }
+
         public override string ToString()
         {
             return $"[{start}, {end})";
