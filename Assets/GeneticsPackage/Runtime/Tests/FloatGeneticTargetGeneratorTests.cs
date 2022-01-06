@@ -26,10 +26,13 @@ namespace Genetics
 
             foreach (var result in generatedResult)
             {
-                Assert.LessOrEqual(generator.absoluteMin, result.minValue, $"Expected generated min value {result.minValue} to be above absolute minimum {generator.absoluteMin}");
-                Assert.GreaterOrEqual(generator.absoluteMax, result.maxValue, $"Expected generated max value {result.maxValue} to be below absolute maximum {generator.absoluteMax}");
+                Assert.AreEqual(1, result.targetRanges.Count);
+                var range = result.targetRanges[0];
+                Assert.LessOrEqual(generator.absoluteMin, range.minValue, $"Expected generated min value {range.minValue} to be above absolute minimum {generator.absoluteMin}");
+                Assert.GreaterOrEqual(generator.absoluteMax, range.maxValue, $"Expected generated max value {range.maxValue} to be below absolute maximum {generator.absoluteMax}");
             }
         }
+
         [Test]
         public void ValueRangeAlwaysWithinRange()
         {
@@ -45,10 +48,11 @@ namespace Genetics
 
             foreach (var result in generatedResult)
             {
-                var actualRange = result.maxValue - result.minValue;
+                Assert.AreEqual(1, result.targetRanges.Count);
+                var range = result.targetRanges[0];
+                var actualRange = range.maxValue - range.minValue;
                 Assert.IsTrue(actualRange >= generator.rangeMin - 1e-5 && actualRange <= generator.rangeMax + 1e-5, $"Expected generated variance range {actualRange} to fall in [{generator.rangeMin}, {generator.rangeMax}]");
             }
         }
-
     }
 }

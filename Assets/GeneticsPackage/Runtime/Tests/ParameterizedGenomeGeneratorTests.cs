@@ -26,10 +26,15 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new BooleanGeneticTarget(bool1, true));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { new BooleanGeneticTarget(bool1, true) },
-                floatTargets = new FloatGeneticTarget[] { },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
@@ -70,10 +75,15 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 4.99f));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 4, 4.99f) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
@@ -120,10 +130,16 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new BooleanGeneticTarget(bool1, false));
+            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { new BooleanGeneticTarget(bool1, false) },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 4, 5) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
@@ -173,10 +189,17 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new BooleanGeneticTarget(bool1, false));
+            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { new BooleanGeneticTarget(bool1, false) },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 4, 5) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
@@ -225,10 +248,17 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new BooleanGeneticTarget(bool1, false));
+            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { new BooleanGeneticTarget(bool1, false) },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 4, 5) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
@@ -255,7 +285,7 @@ namespace Genetics
             }
         }
         [Test]
-        public void GenomeWithImpossibleTargetInfiniteNulls()
+        public void GenomeWithDisparateTargetMaySatisfyEither()
         {
             var floatGene = ScriptableObject.CreateInstance<MendelianFloatGene>();
             var float1 = FloatDriver();
@@ -271,18 +301,43 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
+            container.IncludeTarget(new FloatGeneticTarget(float1, 6, 7));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 4, 5), new FloatGeneticTarget(float1, 6, 7) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
             var newGenes = geneGenerator.GenerateGenomes(new System.Random(1), 10).Take(1000);
 
+            var totalMatches = 0;
             foreach (var genome in newGenes)
             {
-                Assert.IsNull(genome);
+                if (genome == null)
+                {
+                    continue;
+                }
+                Assert.IsNotNull(genome);
+                var drivers = genomeEditor.CompileGenome(genome);
+                Assert.IsTrue(drivers.TryGetGeneticData(float1, out var floatValue));
+                if (!(
+                    (floatValue >= 4 && floatValue <= 5) ||
+                    (floatValue >= 6 && floatValue <= 7)))
+                {
+                    Assert.Fail($"{floatValue} must be in either [4, 5] or [6, 7]");
+                }
+                totalMatches++;
+                if (totalMatches >= 100)
+                {
+                    break;
+                }
             }
         }
         [Test]
@@ -305,10 +360,15 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new FloatGeneticTarget(floatOutput, 0.1f, 1.2f));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] {  },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(floatOutput, 0.1f, 1.2f) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 
@@ -350,10 +410,15 @@ namespace Genetics
             var genomeEditor = ScriptableObject.CreateInstance<GenomeEditor>();
             genomeEditor.chromosomes = new ChromosomeEditor[] { chromosome };
 
+            var container = new GenomeTargetContainer()
+            {
+                targetGenome = genomeEditor,
+            };
+            container.IncludeTarget(new FloatGeneticTarget(float1, 1.9f, 2.1f));
+
             var geneGenerator = new GenomeGenerator()
             {
-                booleanTargets = new BooleanGeneticTarget[] { },
-                floatTargets = new FloatGeneticTarget[] { new FloatGeneticTarget(float1, 1.9f, 2.1f) },
+                aggregateTargets = container,
                 genomeTarget = genomeEditor
             };
 

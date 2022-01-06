@@ -1,6 +1,7 @@
 ﻿using Dman.ObjectSets;
 using Genetics;
 using Genetics.GeneticDrivers;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using UnityEngine;
 
@@ -28,12 +29,23 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
             var range = (float)(randProvider.NextDouble() * (rangeMax - rangeMin) + rangeMin);
             var minValue = (float)(randProvider.NextDouble() * (absoluteMax - absoluteMin - range) + absoluteMin);
-            return new FloatGeneticTarget
-            {
-                minValue = Mathf.Round(minValue * 10) / 10f,
-                maxValue = Mathf.Round((minValue + range) * 10) / 10f,
-                targetDriver = driver
-            };
+            return new FloatGeneticTarget(driver, Mathf.Round(minValue * 10) / 10f, Mathf.Round((minValue + range) * 10) / 10f);
+        }
+    }
+
+    /// <summary>
+    /// binary serialization compatabile and unity inspector compatible
+    /// </summary>
+    [System.Serializable]
+    public struct TargetRange
+    {
+        public float minValue;
+        public float maxValue;
+
+        public TargetRange(float min, float max)
+        {
+            minValue = min;
+            maxValue = max;
         }
     }
 
@@ -44,8 +56,7 @@ namespace Genetics.ParameterizedGenomeGenerator
     public class FloatGeneticTarget : ISerializable, IGeneticTarget
     {
         public FloatGeneticDriver targetDriver;
-        public float minValue;
-        public float maxValue;
+        public List<TargetRange> targetRanges;
         public GeneticDriver TargetDriver => targetDriver;
 
         public FloatGeneticTarget()
@@ -54,14 +65,12 @@ namespace Genetics.ParameterizedGenomeGenerator
         public FloatGeneticTarget(FloatGeneticDriver driver, float min, float max)
         {
             this.targetDriver = driver;
-            this.minValue = min;
-            this.maxValue = max;
+            targetRanges = new List<TargetRange> { new TargetRange(min, max) };
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("minValue", minValue);
-            info.AddValue("maxValue", maxValue);
+            info.AddValue("targetRanges", targetRanges);
             info.AddValue("driverReference", new IDableSavedReference(targetDriver));
         }
 
@@ -69,8 +78,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         // The special constructor is used to deserialize values.
         private FloatGeneticTarget(SerializationInfo info, StreamingContext context)
         {
-            minValue = info.GetSingle("minValue");
-            maxValue = info.GetSingle("maxValue");
+            targetRanges = info.GetValue("minValue", typeof(List<TargetRange>)) as List<TargetRange>;
             var savedReference = info.GetValue("driverReference", typeof(IDableSavedReference)) as IDableSavedReference;
             targetDriver = savedReference?.GetObject<GeneticDriver>() as FloatGeneticDriver;
             if (targetDriver == null)
@@ -79,18 +87,42 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
+        /// <summary>
+        /// merge the other target into this one, such that this target will now match based on the criteria it used to have
+        ///     and the criteria of the other target
+        /// </summary>
+        /// <param name="otherTarget"></param>
+        public void MergeIn(FloatGeneticTarget otherTarget)
+        {
+            //TODO: optimize
+            targetRanges.AddRange(otherTarget.targetRanges);
+        }
+
         public bool Matches(CompiledGeneticDrivers geneticDrivers)
         {
             if (!geneticDrivers.TryGetGeneticData(targetDriver, out var floatValue))
             {
                 return false;
             }
-            return targetDriver.FallsInRange(minValue, maxValue, floatValue);
+            foreach (var range in targetRanges)
+            {
+                if(targetDriver.FallsInRange(range.minValue, range.maxValue, floatValue))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public string GetDescriptionOfTarget()
         {
-            return targetDriver.DescribeRange(minValue, maxValue);
+            var description = new System.Text.StringBuilder();
+            foreach (var range in targetRanges)
+            {
+                description.Append(targetDriver.DescribeRange(range.minValue, range.maxValue));
+                description.Append(", ");
+            }
+            return description.ToString();
         }
     }
 }

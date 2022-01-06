@@ -14,8 +14,7 @@ namespace Genetics.ParameterizedGenomeGenerator
     [System.Serializable]
     public class GenomeGenerator
     {
-        public BooleanGeneticTarget[] booleanTargets = new BooleanGeneticTarget[0];
-        public FloatGeneticTarget[] floatTargets = new FloatGeneticTarget[0];
+        public GenomeTargetContainer aggregateTargets;
         public GenomeEditor genomeTarget;
         [UnityEngine.Tooltip("When true, chromosome copies will have different genes. when false, all chromosome copies will be identical")]
         public bool varianceOverHomologous = true;
@@ -78,11 +77,11 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             UnityEngine.Profiling.Profiler.BeginSample("rerolling and rechecking");
             var changeMade = false;
-            foreach (var target in booleanTargets)
+            foreach (var target in aggregateTargets.booleanTargets)
             {
                 changeMade |= RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
-            foreach (var target in floatTargets)
+            foreach (var target in aggregateTargets.floatTargets)
             {
                 changeMade |= RerollTargetToMatch(genomeData, depTree, target, randomSource);
             }
