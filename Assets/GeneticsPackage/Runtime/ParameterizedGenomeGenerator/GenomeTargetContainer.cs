@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Genetics.ParameterizedGenomeGenerator
 {
+    [CreateAssetMenu(fileName = "GenomeTargetContainer", menuName = "Genetics/GenomeTargetContainer", order = 0)]
     public class GenomeTargetContainer : ScriptableObject
     {
         public GenomeEditor targetGenome;
@@ -33,6 +34,8 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
+        public IEnumerable<IGeneticTarget> AllTargets => booleanTargets.Cast<IGeneticTarget>().Concat(floatTargets);
+
         public bool DriversMatch(CompiledGeneticDrivers drivers)
         {
             foreach (var target in booleanTargets.Cast<IGeneticTarget>().Concat(floatTargets))
@@ -43,6 +46,13 @@ namespace Genetics.ParameterizedGenomeGenerator
                 }
             }
             return true;
+        }
+
+        public void Reset()
+        {
+            booleanTargets.Clear();
+            floatTargets.Clear();
+            _targetsByDriver = null;
         }
 
         /// <summary>
@@ -71,8 +81,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             var existing = targetsByDriver[target.TargetDriver] as BooleanGeneticTarget;
             if(existing == null)
             {
-                targetsByDriver[target.targetDriver] = target;
-                booleanTargets.Add(target);
+                // there are no restrictions on this driver, no need to add more
                 return;
             }
             if (existing.targetValue != target.targetValue)
@@ -87,8 +96,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             var existing = targetsByDriver[target.TargetDriver] as FloatGeneticTarget;
             if (existing == null)
             {
-                targetsByDriver[target.targetDriver] = target;
-                floatTargets.Add(target);
+                // there are no restrictions on this driver, no need to add more
                 return;
             }
             existing.MergeIn(target);

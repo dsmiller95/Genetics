@@ -29,8 +29,8 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                booleanTargets = new List<BooleanGeneticTarget> { new BooleanGeneticTarget(bool1, true) }
             };
-            container.IncludeTarget(new BooleanGeneticTarget(bool1, true));
 
             var geneGenerator = new GenomeGenerator()
             {
@@ -78,8 +78,8 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(float1, 4, 4.99f) }
             };
-            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 4.99f));
 
             var geneGenerator = new GenomeGenerator()
             {
@@ -133,9 +133,9 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                booleanTargets = new List<BooleanGeneticTarget> { new BooleanGeneticTarget(bool1, false) },
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(float1, 4, 5) }
             };
-            container.IncludeTarget(new BooleanGeneticTarget(bool1, false));
-            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
 
             var geneGenerator = new GenomeGenerator()
             {
@@ -193,9 +193,9 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                booleanTargets = new List<BooleanGeneticTarget> { new BooleanGeneticTarget(bool1, false) },
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(float1, 4, 5) }
             };
-            container.IncludeTarget(new BooleanGeneticTarget(bool1, false));
-            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
 
             var geneGenerator = new GenomeGenerator()
             {
@@ -252,9 +252,9 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                booleanTargets = new List<BooleanGeneticTarget> { new BooleanGeneticTarget(bool1, false) },
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(float1, 4, 5) }
             };
-            container.IncludeTarget(new BooleanGeneticTarget(bool1, false));
-            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
 
             var geneGenerator = new GenomeGenerator()
             {
@@ -305,8 +305,8 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(float1, 4, 5) }
             };
-            container.IncludeTarget(new FloatGeneticTarget(float1, 4, 5));
             container.IncludeTarget(new FloatGeneticTarget(float1, 6, 7));
 
             var geneGenerator = new GenomeGenerator()
@@ -363,8 +363,8 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(floatOutput, 0.1f, 1.2f) }
             };
-            container.IncludeTarget(new FloatGeneticTarget(floatOutput, 0.1f, 1.2f));
 
             var geneGenerator = new GenomeGenerator()
             {
@@ -413,8 +413,8 @@ namespace Genetics
             var container = new GenomeTargetContainer()
             {
                 targetGenome = genomeEditor,
+                floatTargets = new List<FloatGeneticTarget> { new FloatGeneticTarget(float1, 1.9f, 2.1f) }
             };
-            container.IncludeTarget(new FloatGeneticTarget(float1, 1.9f, 2.1f));
 
             var geneGenerator = new GenomeGenerator()
             {
