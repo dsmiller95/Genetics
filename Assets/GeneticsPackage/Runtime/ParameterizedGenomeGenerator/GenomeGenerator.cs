@@ -107,7 +107,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             var rerollBuffer = new byte[relevantSpan.GetByteLength()];
             var relevantChromosome = genomeData.allChromosomes[node.sourceEditorChromosome];
 
-            var infiniteProtecc = 1000;
+            var infiniteProtecc = 5000;
 
             var rerolled = false;
             while (!GenomeMatchesAndIsValid(genomeData, depTree, target))
@@ -129,7 +129,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                 //  verified as plausable before publishing the game
                 if(infiniteProtecc-- <= 0)
                 {
-                    throw new Exception($"infinite loop protection. could not find valid driver match after 1000 rerolls on gene:{node.sourceEditor.name}");
+                    throw new Exception($"infinite loop protection. could not find valid driver match after 5000 rerolls on gene:{node.sourceEditor.name}");
                 }
 #endif
                 rerolled = true;

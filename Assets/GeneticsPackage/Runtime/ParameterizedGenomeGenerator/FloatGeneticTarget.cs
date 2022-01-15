@@ -78,7 +78,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         // The special constructor is used to deserialize values.
         private FloatGeneticTarget(SerializationInfo info, StreamingContext context)
         {
-            targetRanges = info.GetValue("minValue", typeof(List<TargetRange>)) as List<TargetRange>;
+            targetRanges = info.GetValue("targetRanges", typeof(List<TargetRange>)) as List<TargetRange>;
             var savedReference = info.GetValue("driverReference", typeof(IDableSavedReference)) as IDableSavedReference;
             targetDriver = savedReference?.GetObject<GeneticDriver>() as FloatGeneticDriver;
             if (targetDriver == null)
