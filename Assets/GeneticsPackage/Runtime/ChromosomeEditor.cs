@@ -89,24 +89,62 @@ namespace Genetics
         {
             var targetStartIndex = span.start.IndexToByteData;
             var sourceStartIndex = 0;
+
+            if (span.start.IndexToByteData == span.end.IndexToByteData)
+            {
+                var startCopyMask = (0b11111111 >> (span.start.IndexInsideByte * 2));
+                var endCopyMask = (0b11111111 << ((4 - span.end.IndexInsideByte) * 2));
+                var compositeCopyMask = startCopyMask & endCopyMask;
+                chromosomeData[targetStartIndex] = CopyMasked(chromosomeData[targetStartIndex], buffer[sourceStartIndex], compositeCopyMask);
+                return;
+            }
+
+            // copy prefix sub-byte chunks
             if(span.start.IndexInsideByte != 0) {
                 var copyMask = (0b11111111 >> (span.start.IndexInsideByte * 2));
-                chromosomeData[targetStartIndex] = (byte)((chromosomeData[targetStartIndex] & ~copyMask) | (buffer[sourceStartIndex] & copyMask));
+                chromosomeData[targetStartIndex] = CopyMasked(chromosomeData[targetStartIndex], buffer[sourceStartIndex], copyMask);
                 targetStartIndex++;
                 sourceStartIndex++;
             }
 
+
+            // copy suffix sub-byte chunks
             var targetEndIndex = (span.end - 1).IndexToByteData;
             var sourceEndIndex = buffer.Length - 1;
-            if(span.end.IndexInsideByte != 0)
+            var copyLength = targetEndIndex - targetStartIndex + 1;
+            if(copyLength <= 0)
+            {
+                return;
+            }
+            if (span.end.IndexInsideByte != 0)
             {
                 var copyMask = (0b11111111 << ((4 - span.end.IndexInsideByte) * 2));
-                chromosomeData[targetEndIndex] = (byte)((chromosomeData[targetEndIndex] & ~copyMask) | (buffer[sourceEndIndex] & copyMask));
+                chromosomeData[targetEndIndex] = CopyMasked(chromosomeData[targetEndIndex], buffer[sourceEndIndex], copyMask);
                 targetEndIndex--;
                 sourceEndIndex--;
             }
 
-            System.Array.Copy(buffer, sourceStartIndex, chromosomeData, targetStartIndex, targetEndIndex - targetStartIndex + 1);
+            copyLength = targetEndIndex - targetStartIndex + 1;
+            if (copyLength <= 0)
+            {
+                return;
+            }
+            if (copyLength > 0)
+            {
+                System.Array.Copy(buffer, sourceStartIndex, chromosomeData, targetStartIndex, targetEndIndex - targetStartIndex + 1);
+            }
+        }
+
+        /// <summary>
+        /// copies bits from <paramref name="sourceData"/> into <paramref name="targetData"/> where <paramref name="copyMask"/> is 1
+        /// </summary>
+        /// <param name="targetData"></param>
+        /// <param name="sourceData"></param>
+        /// <param name="copyMask"></param>
+        /// <returns></returns>
+        private byte CopyMasked(byte targetData, byte sourceData, int copyMask)
+        {
+            return (byte)((targetData & ~copyMask) | (sourceData & copyMask));
         }
 
         public override string ToString()

@@ -146,5 +146,121 @@ namespace Genetics
                 Assert.AreEqual(expectedData[i], data.chromosomeData[i], $"Expected {System.Convert.ToString(data.chromosomeData[i], 2)} to be {System.Convert.ToString(expectedData[i], 2)} at index {i}");
             }
         }
+
+        [Test]
+        public void SingleChromosomeCopyWritesGeneSpanWhenFourAllelesAcrossBorders()
+        {
+            var data = new SingleChromosomeCopy(new byte[]
+                {
+                    0b00011011,
+                    0b10010001,
+                    0b11010110,
+                    0b11000000,
+                    0b00110100,
+                }, new GeneIndex(20));
+
+            var writtenData = new byte[]
+            {
+                0b11111111,
+                0b11111111,
+            };
+
+            var writeSpan = new GeneSpan()
+            {
+                start = new GeneIndex(6),
+                end = new GeneIndex(10)
+            };
+
+            var expectedData = new byte[]
+            {
+                    0b00011011,
+                    0b10011111,
+                    0b11110110,
+                    0b11000000,
+                    0b00110100,
+            };
+
+            data.WriteIntoGeneSpan(writeSpan, writtenData);
+            for (int i = 0; i < expectedData.Length; i++)
+            {
+                Assert.AreEqual(expectedData[i], data.chromosomeData[i], $"Expected {System.Convert.ToString(data.chromosomeData[i], 2)} to be {System.Convert.ToString(expectedData[i], 2)} at index {i}");
+            }
+        }
+        [Test]
+        public void SingleChromosomeCopyWritesSingleAlleleGeneSpan()
+        {
+            var data = new SingleChromosomeCopy(new byte[]
+                {
+                    0b00011011,
+                    0b00000000,
+                    0b11010110,
+                    0b11000000,
+                    0b00110100,
+                }, new GeneIndex(20));
+
+            var writtenData = new byte[]
+            {
+                0b11111111,
+            };
+
+            var writeSpan = new GeneSpan()
+            {
+                start = new GeneIndex(5),
+                end = new GeneIndex(6)
+            };
+
+            var expectedData = new byte[]
+            {
+                    0b00011011,
+                    0b00110000,
+                    0b11010110,
+                    0b11000000,
+                    0b00110100,
+            };
+
+            data.WriteIntoGeneSpan(writeSpan, writtenData);
+            for (int i = 0; i < expectedData.Length; i++)
+            {
+                Assert.AreEqual(expectedData[i], data.chromosomeData[i], $"Expected {System.Convert.ToString(data.chromosomeData[i], 2)} to be {System.Convert.ToString(expectedData[i], 2)} at index {i}");
+            }
+        }
+        [Test]
+        public void SingleChromosomeCopyWritesDoubleAlleleGeneSpan()
+        {
+            var data = new SingleChromosomeCopy(new byte[]
+                {
+                    0b00011011,
+                    0b00000000,
+                    0b11010110,
+                    0b11000000,
+                    0b00110100,
+                }, new GeneIndex(20));
+
+            var writtenData = new byte[]
+            {
+                0b11111111,
+            };
+
+            var writeSpan = new GeneSpan()
+            {
+                start = new GeneIndex(5),
+                end = new GeneIndex(7)
+            };
+
+            var expectedData = new byte[]
+            {
+                    0b00011011,
+                    0b00111100,
+                    0b11010110,
+                    0b11000000,
+                    0b00110100,
+            };
+
+            data.WriteIntoGeneSpan(writeSpan, writtenData);
+            for (int i = 0; i < expectedData.Length; i++)
+            {
+                Assert.AreEqual(expectedData[i], data.chromosomeData[i], $"Expected {System.Convert.ToString(data.chromosomeData[i], 2)} to be {System.Convert.ToString(expectedData[i], 2)} at index {i}");
+            }
+        }
     }
 }
