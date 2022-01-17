@@ -55,6 +55,15 @@ namespace Genetics.ParameterizedGenomeGenerator
             _targetsByDriver = null;
         }
 
+        public void CopyFrom(GenomeTargetContainer other)
+        {
+            targetGenome = other.targetGenome;
+            booleanTargets = other.booleanTargets.Select(x => x.Clone() as BooleanGeneticTarget).ToList();
+            floatTargets = other.floatTargets.Select(x => x.Clone() as FloatGeneticTarget).ToList();
+            _targetsByDriver = null;
+        }
+
+
         /// <summary>
         /// "include" the range of genomes described in the given genetic target. this means that this container will now
         ///     allow for the production of genomes with this target, in addition to all other targets defined already
@@ -79,7 +88,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         private void IncludeTarget(BooleanGeneticTarget target)
         {
             var existing = targetsByDriver[target.TargetDriver] as BooleanGeneticTarget;
-            if(existing == null)
+            if (existing == null)
             {
                 // there are no restrictions on this driver, no need to add more
                 return;

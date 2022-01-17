@@ -7,5 +7,6 @@ namespace Genetics.ParameterizedGenomeGenerator
         public string GetDescriptionOfTarget();
         public bool Matches(CompiledGeneticDrivers drivers);
         public GeneticDriver TargetDriver { get; }
+        public IGeneticTarget Clone();
     }
 }

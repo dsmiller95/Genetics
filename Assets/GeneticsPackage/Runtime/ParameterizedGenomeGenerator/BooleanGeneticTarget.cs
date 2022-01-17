@@ -57,5 +57,10 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             return this.targetDriver.DescribeState(targetValue);
         }
+
+        public IGeneticTarget Clone()
+        {
+            return new BooleanGeneticTarget(targetDriver, targetValue);
+        }
     }
 }

@@ -104,6 +104,10 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             var node = depTree.GetNodeFromDriver(target.TargetDriver);
             var relevantSpan = node.GetBasisSpan();
+            if(relevantSpan == GeneSpan.INVALID || relevantSpan.Length <= 0)
+            {
+                throw new ArgumentException($"genetic target {target.GetDescriptionOfTarget()} has no genetic base in this genome");
+            }
             var rerollBuffer = new byte[relevantSpan.GetByteLength()];
             var relevantChromosome = genomeData.allChromosomes[node.sourceEditorChromosome];
 

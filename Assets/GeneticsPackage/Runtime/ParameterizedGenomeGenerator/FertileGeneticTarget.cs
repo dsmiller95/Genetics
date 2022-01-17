@@ -33,6 +33,11 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             return targetDriver.DriverName;
         }
+
+        public IGeneticTarget Clone()
+        {
+            return new FertileGeneticTarget(targetDriver);
+        }
     }
 
     public class NodeEqualityComparitorByGene : System.Collections.Generic.IEqualityComparer<GeneticDriverDependencyTree.GeneticDriverNode>

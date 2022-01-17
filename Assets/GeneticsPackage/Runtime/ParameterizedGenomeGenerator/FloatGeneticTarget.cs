@@ -2,6 +2,7 @@
 using Genetics;
 using Genetics.GeneticDrivers;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using UnityEngine;
 
@@ -123,6 +124,15 @@ namespace Genetics.ParameterizedGenomeGenerator
                 description.Append(", ");
             }
             return description.ToString();
+        }
+
+        public IGeneticTarget Clone()
+        {
+            return new FloatGeneticTarget
+            {
+                targetDriver = targetDriver,
+                targetRanges = targetRanges.ToList()
+            };
         }
     }
 }
