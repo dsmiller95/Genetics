@@ -48,11 +48,18 @@ namespace Genetics.ParameterizedGenomeGenerator
             return true;
         }
 
-        public void Reset()
+        public void Reset(IEnumerable<IGeneticTarget> newTargets = null)
         {
             booleanTargets.Clear();
             floatTargets.Clear();
             _targetsByDriver = null;
+
+            if(newTargets == null)
+            {
+                return;
+            }
+            booleanTargets = newTargets.OfType<BooleanGeneticTarget>().ToList();
+            floatTargets = newTargets.OfType<FloatGeneticTarget>().ToList();
         }
 
         public void CopyFrom(GenomeTargetContainer other)
