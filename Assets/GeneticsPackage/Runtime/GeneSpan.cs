@@ -93,7 +93,7 @@ namespace Genetics
 
         public override bool Equals(object obj)
         {
-            if(!(obj is GeneSpan other))
+            if (!(obj is GeneSpan other))
             {
                 return false;
             }

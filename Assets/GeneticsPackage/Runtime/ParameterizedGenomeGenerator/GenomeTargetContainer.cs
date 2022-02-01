@@ -54,7 +54,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             floatTargets.Clear();
             _targetsByDriver = null;
 
-            if(newTargets == null)
+            if (newTargets == null)
             {
                 return;
             }

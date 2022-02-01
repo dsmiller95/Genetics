@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Genetics
 {
@@ -28,7 +26,7 @@ namespace Genetics
 
         public override bool Equals(object obj)
         {
-            if(obj is GeneIndex indx)
+            if (obj is GeneIndex indx)
             {
                 return indx == this;
             }

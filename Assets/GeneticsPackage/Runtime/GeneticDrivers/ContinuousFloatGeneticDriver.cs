@@ -12,7 +12,12 @@ namespace Genetics.GeneticDrivers
         public int summaryBucketCount = 0;
         public override string DescribeState(float state)
         {
-            return this.DriverName + $": {state:F2}";
+            return $"{this.DriverName}: {NameState(state)}";
+        }
+
+        public override string NameState(float state)
+        {
+            return $"{state :F2}";
         }
 
         public override string DescribeRange(float min, float max)
@@ -28,8 +33,8 @@ namespace Genetics.GeneticDrivers
         public override AbstractSummary GetSummarizer()
         {
             return new ContinuousSummary(
-                minValue, 
-                maxValue, 
+                minValue,
+                maxValue,
                 summaryBucketCount <= 0 ? Mathf.FloorToInt(maxValue - minValue) : summaryBucketCount,
                 this);
         }

@@ -1,8 +1,4 @@
-﻿using Dman.ObjectSets;
-using Genetics;
-using Genetics.GeneticDrivers;
-using System.Runtime.Serialization;
-using UnityEngine;
+﻿using Genetics.GeneticDrivers;
 
 namespace Genetics.ParameterizedGenomeGenerator
 {

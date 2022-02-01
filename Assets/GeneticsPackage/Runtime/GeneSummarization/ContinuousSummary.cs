@@ -17,7 +17,7 @@ namespace Genetics.GeneSummarization
             float minValue,
             float maxValue,
             int bucketNumber,
-            GeneticDriver source): base(source)
+            GeneticDriver source) : base(source)
         {
             this.minValue = minValue;
             this.maxValue = maxValue;
@@ -52,7 +52,7 @@ namespace Genetics.GeneSummarization
                 for (int i = min; i < max; i++)
                 {
                     var intensityCurvePosition = Mathf.Abs(i - centerInOutput) / (outputBucketSize / 2f);
-                    if(intensityCurvePosition > 1 || intensityCurvePosition < 0)
+                    if (intensityCurvePosition > 1 || intensityCurvePosition < 0)
                     {
                         continue;
                     }
@@ -71,7 +71,8 @@ namespace Genetics.GeneSummarization
             if (sortedValues.ContainsKey(value))
             {
                 sortedValues[value] += 1;
-            }else
+            }
+            else
             {
                 sortedValues[value] = 1;
             }

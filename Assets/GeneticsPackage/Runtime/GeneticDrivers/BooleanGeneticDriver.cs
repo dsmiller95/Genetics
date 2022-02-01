@@ -16,12 +16,19 @@ namespace Genetics.GeneticDrivers
         {
             return state ? outcomeWhenTrue : outcomeWhenFalse;
         }
+
+        public override string NameState(bool state)
+        {
+            return state ? outcomeWhenTrue : outcomeWhenFalse;
+        }
+
         public override string DescribeRange(bool min, bool max)
         {
-            if(min == max)
+            if (min == max)
             {
                 return DescribeState(min);
-            }else
+            }
+            else
             {
                 return outcomeWhenTrue + " or " + outcomeWhenFalse;
             }
@@ -36,7 +43,7 @@ namespace Genetics.GeneticDrivers
 
         public override void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet)
         {
-            if(valueSet == null || !valueSet.TryGetGeneticData(this, out var value))
+            if (valueSet == null || !valueSet.TryGetGeneticData(this, out var value))
             {
                 summarizer.invalidClassifications++;
                 return;

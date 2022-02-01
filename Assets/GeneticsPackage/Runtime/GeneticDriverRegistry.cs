@@ -17,7 +17,8 @@ namespace Genetics
                 {
                     var otherUser = allNames[driver.DriverName];
                     Debug.LogError($"Found a genetic driver with a duplicate name. '{driver.name}' has a name of '{driver.DriverName}', which is already in use by '{otherUser}'");
-                }else
+                }
+                else
                 {
                     allNames[driver.DriverName] = driver.name;
                 }

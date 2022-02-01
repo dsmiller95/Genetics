@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Genetics.GeneticDrivers
+﻿namespace Genetics.GeneticDrivers
 {
     /// <summary>
     /// base class for numerical drivers. used to help out unity, since unity doesn't like generics

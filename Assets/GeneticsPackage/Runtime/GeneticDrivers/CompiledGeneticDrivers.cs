@@ -30,14 +30,29 @@ namespace Genetics.GeneticDrivers
             return geneticDriverValues.ContainsKey(driver.DriverName);
         }
 
-        public bool TryGetGeneticDataAsString(GeneticDriver driver, out string driverValue)
+        public bool TryGetGeneticDataAsString(GeneticDriver driver, out string descriptionValue)
         {
             if (geneticDriverValues.TryGetValue(driver.DriverName, out var objectValue))
             {
-                driverValue = objectValue.ToString();
+                descriptionValue = objectValue.ToString();
                 return true;
             }
-            driverValue = null;
+            descriptionValue = null;
+            return false;
+        }
+
+        public bool TryGetGeneticDataDescription(GeneticDriver driver, out string descriptionValue)
+        {
+            if (geneticDriverValues.TryGetValue(driver.DriverName, out var objectValue))
+            {
+                descriptionValue = driver.NameState(objectValue);
+                if(descriptionValue == null)
+                {
+                    descriptionValue = objectValue.ToString();
+                }
+                return true;
+            }
+            descriptionValue = null;
             return false;
         }
         public T GetGeneticData<T>(GeneticDriver<T> driver)

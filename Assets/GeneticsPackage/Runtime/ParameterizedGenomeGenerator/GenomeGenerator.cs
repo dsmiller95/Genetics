@@ -104,7 +104,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             var node = depTree.GetNodeFromDriver(target.TargetDriver);
             var relevantSpan = node.GetBasisSpan();
-            if(relevantSpan == GeneSpan.INVALID || relevantSpan.Length <= 0)
+            if (relevantSpan == GeneSpan.INVALID || relevantSpan.Length <= 0)
             {
                 throw new ArgumentException($"genetic target {target.GetDescriptionOfTarget()} has no genetic base in this genome");
             }
@@ -131,7 +131,7 @@ namespace Genetics.ParameterizedGenomeGenerator
 #if UNITY_EDITOR
                 // this could theoretically cause very unlikely crashes if included in a prod build. all genetic targets should be 
                 //  verified as plausable before publishing the game
-                if(infiniteProtecc-- <= 0)
+                if (infiniteProtecc-- <= 0)
                 {
                     throw new Exception($"infinite loop protection. could not find valid driver match after 5000 rerolls on gene:{node.sourceEditor.name}");
                 }

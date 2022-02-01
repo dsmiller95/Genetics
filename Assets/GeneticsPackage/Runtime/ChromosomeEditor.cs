@@ -1,6 +1,5 @@
 ﻿using Dman.Utilities;
 using Genetics.GeneticDrivers;
-using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -33,7 +32,7 @@ namespace Genetics
             this.endIndex = sourceChromosomes[0].endIndex;
             for (int i = 0; i < sourceChromosomes.Length; i++)
             {
-                if(sourceChromosomes[i].endIndex != this.endIndex)
+                if (sourceChromosomes[i].endIndex != this.endIndex)
                 {
                     throw new System.Exception("invalid chromosome set to select from. all chromosomes must be of uniform size");
                 }
@@ -53,7 +52,7 @@ namespace Genetics
 
         public ulong SampleBasePairs(GeneSpan span)
         {
-            if(span.Length > 32)
+            if (span.Length > 32)
             {
                 throw new System.Exception("gene span too big");
             }
@@ -100,7 +99,8 @@ namespace Genetics
             }
 
             // copy prefix sub-byte chunks
-            if(span.start.IndexInsideByte != 0) {
+            if (span.start.IndexInsideByte != 0)
+            {
                 var copyMask = (0b11111111 >> (span.start.IndexInsideByte * 2));
                 chromosomeData[targetStartIndex] = CopyMasked(chromosomeData[targetStartIndex], buffer[sourceStartIndex], copyMask);
                 targetStartIndex++;
@@ -112,7 +112,7 @@ namespace Genetics
             var targetEndIndex = (span.end - 1).IndexToByteData;
             var sourceEndIndex = buffer.Length - 1;
             var copyLength = targetEndIndex - targetStartIndex + 1;
-            if(copyLength <= 0)
+            if (copyLength <= 0)
             {
                 return;
             }
@@ -261,7 +261,7 @@ namespace Genetics
             }
             for (int geneIndex = 0; geneIndex < genes.Length; geneIndex++)
             {
-                if(!genes[geneIndex].Evaluate(drivers, chromosome.allGeneData))
+                if (!genes[geneIndex].Evaluate(drivers, chromosome.allGeneData))
                 {
                     return false;
                 }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Genetics.GeneSummarization {
+namespace Genetics.GeneSummarization
+{
     public class DiscretSummary : AbstractSummary
     {
         public class BucketClassification
@@ -19,7 +17,7 @@ namespace Genetics.GeneSummarization {
         }
         public BucketClassification[] allClassifications;
 
-        public DiscretSummary(string[] discreteClassifications, GeneticDriver source): base(source)
+        public DiscretSummary(string[] discreteClassifications, GeneticDriver source) : base(source)
         {
             this.InitializeBuckets(discreteClassifications);
         }
@@ -50,7 +48,7 @@ namespace Genetics.GeneSummarization {
 
             foreach (var classification in allClassifications)
             {
-                if(classificationsByName.TryGetValue(classification.description, out var totalSum))
+                if (classificationsByName.TryGetValue(classification.description, out var totalSum))
                 {
                     classificationsByName.Remove(classification.description);
                     yield return new BucketClassification

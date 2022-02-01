@@ -1,5 +1,4 @@
 ﻿using Dman.ObjectSets;
-using Genetics;
 using Genetics.GeneticDrivers;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         public float rangeMax;
         public FloatGeneticTarget GenerateTarget(System.Random randProvider = null)
         {
-            if(randProvider == null)
+            if (randProvider == null)
             {
                 randProvider = new System.Random(UnityEngine.Random.Range(1, int.MaxValue));
             }
@@ -107,7 +106,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
             foreach (var range in targetRanges)
             {
-                if(targetDriver.FallsInRange(range.minValue, range.maxValue, floatValue))
+                if (targetDriver.FallsInRange(range.minValue, range.maxValue, floatValue))
                 {
                     return true;
                 }

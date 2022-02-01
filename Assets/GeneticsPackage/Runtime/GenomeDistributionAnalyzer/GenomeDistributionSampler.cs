@@ -46,7 +46,7 @@ namespace Genetics
             for (int i = 0; i < samples; i++)
             {
                 var nextDrivers = targetGenome.CompileGenome(targetGenome.GenerateBaseGenomeData(random));
-                if(nextDrivers == null)
+                if (nextDrivers == null)
                 {
                     inviables++;
                     continue;
@@ -54,13 +54,13 @@ namespace Genetics
 
                 foreach (var floatDriver in floatsOfInterest)
                 {
-                    if(!nextDrivers.TryGetGeneticData(floatDriver, out var value))
+                    if (!nextDrivers.TryGetGeneticData(floatDriver, out var value))
                     {
                         Debug.LogWarning($"Genetic data not complete. Missing driver {floatDriver}");
                     }
                     var bucketIndex = Mathf.FloorToInt(value / defaultHistogramBucketSize);
                     var bucketList = floatBuckets[floatDriver.myId];
-                    if(bucketList.Count <= bucketIndex)
+                    if (bucketList.Count <= bucketIndex)
                     {
                         bucketList.AddRange(Enumerable.Repeat(0, bucketIndex - (bucketList.Count - 1)));
                     }
@@ -77,7 +77,8 @@ namespace Genetics
                     if (value)
                     {
                         bucketPair.Item2++;
-                    }else
+                    }
+                    else
                     {
                         bucketPair.Item1++;
                     }

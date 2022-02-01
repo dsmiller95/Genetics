@@ -1,7 +1,5 @@
-﻿using Genetics;
-using Genetics.GeneticDrivers;
+﻿using Genetics.GeneticDrivers;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Genetics.Genes
@@ -42,7 +40,7 @@ namespace Genetics.Genes
                 var value = EvaluateSingleGene(chromosomeCopy);
                 var relativeVal = (value - rangeMin) / (rangeMax - rangeMin);
                 var dist = Mathf.Abs((float)(relativeVal - relativeDominantRange));
-                if(dist < minimumDist)
+                if (dist < minimumDist)
                 {
                     minimumDist = dist;
                     dominantValue = value;

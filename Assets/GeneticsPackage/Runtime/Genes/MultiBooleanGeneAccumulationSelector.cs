@@ -1,6 +1,4 @@
-﻿using Genetics;
-using Genetics.Genes;
-using Genetics.GeneticDrivers;
+﻿using Genetics.GeneticDrivers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;

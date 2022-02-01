@@ -1,5 +1,4 @@
 ﻿using Genetics.GeneSummarization;
-using System;
 using System.Text;
 using UnityEngine;
 
@@ -15,11 +14,18 @@ namespace Genetics.GeneticDrivers
         public string[] possibleStates;
         public Color[] possibleColors;
 
+
         public override string DescribeState(float state)
         {
             var stateAsInt = Mathf.FloorToInt(state);
 
             return $"{this.DriverName}: {possibleStates[stateAsInt]}";
+        }
+
+        public override string NameState(float state)
+        {
+            var stateAsInt = Mathf.FloorToInt(state);
+            return possibleStates[stateAsInt];
         }
 
 

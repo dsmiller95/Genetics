@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace Genetics
+﻿namespace Genetics
 {
     public static class HammingUtilities
     {

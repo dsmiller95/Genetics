@@ -39,13 +39,13 @@ namespace Genetics
         /// <param name="breedingGenome"></param>
         public Genome(params Genome[] breedingGenome)
         {
-            if(breedingGenome.Length == 0)
+            if (breedingGenome.Length == 0)
             {
                 return;
             }
 
             allChromosomes = new Chromosome[breedingGenome[0].allChromosomes.Length];
-            if(breedingGenome.Any(x => x.allChromosomes.Length != allChromosomes.Length))
+            if (breedingGenome.Any(x => x.allChromosomes.Length != allChromosomes.Length))
             {
                 throw new System.ArgumentException("breeding genomes must have equal number of chromosomes");
             }
@@ -78,7 +78,8 @@ namespace Genetics
         {
             var drivers = new CompiledGeneticDrivers();
 
-            if(genomeData.allChromosomes.Length != chromosomes.Length) { 
+            if (genomeData.allChromosomes.Length != chromosomes.Length)
+            {
                 Debug.LogError($"Chromosome number mismatch! Chromosomes in data: {genomeData.allChromosomes.Length}, current chromosome count: {chromosomes.Length}.");
             }
 
@@ -86,7 +87,7 @@ namespace Genetics
             {
                 var chromosome = chromosomes[chromosomeIndex];
                 var chromosomeData = genomeData.allChromosomes[chromosomeIndex];
-                if(!chromosome.CompileChromosomeIntoDrivers(chromosomeData, drivers))
+                if (!chromosome.CompileChromosomeIntoDrivers(chromosomeData, drivers))
                 {
                     return null;
                 }
@@ -94,7 +95,7 @@ namespace Genetics
 
             foreach (var interpretor in geneInterpretors)
             {
-                if(!interpretor.Evaluate(drivers, new SingleChromosomeCopy[0]))
+                if (!interpretor.Evaluate(drivers, new SingleChromosomeCopy[0]))
                 {
                     return null;
                 }

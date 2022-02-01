@@ -6,16 +6,21 @@ namespace Genetics.GeneticDrivers
     [CreateAssetMenu(fileName = "TextDriver", menuName = "Genetics/TextDriver", order = 10)]
     public class TextGeneticDriver : GeneticDriver<string>
     {
+        public override string NameState(string state)
+        {
+            return state;
+        }
         public override string DescribeState(string state)
         {
             return state;
         }
         public override string DescribeRange(string min, string max)
         {
-            if(min.Equals(max))
+            if (min.Equals(max))
             {
                 return DescribeState(min);
-            }else
+            }
+            else
             {
                 return min + " or " + max;
             }
