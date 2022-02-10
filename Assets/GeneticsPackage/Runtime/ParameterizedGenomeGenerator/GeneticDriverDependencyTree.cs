@@ -21,10 +21,33 @@ namespace Genetics.ParameterizedGenomeGenerator
             /// </summary>
             public List<GeneticDriverNode> inputs;
 
-            public GeneticDriverNode(GeneticDriver driver)
+
+            private List<GeneticDriverNode> _outputs;
+            /// <summary>
+            /// a list of nodes which have this node recorded as an input.
+            /// this value is only populated when specifically requested
+            /// </summary>
+            public List<GeneticDriverNode> outputs
+            {
+                get
+                {
+                    if (_outputs == null)
+                    {
+                        throw new Exception("dependency tree is not configured to link outputs");
+                    }
+                    return _outputs;
+                }
+                private set
+                {
+                    _outputs = value;
+                }
+            }
+
+            public GeneticDriverNode(GeneticDriver driver, bool recordOutputs)
             {
                 this.driver = driver;
                 this.inputs = new List<GeneticDriverNode>();
+                this.outputs = recordOutputs ? new List<GeneticDriverNode>() : null;
             }
 
             public bool TriggerEvaluate(Genome genome, CompiledGeneticDrivers drivers)
@@ -74,6 +97,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         ///     immutable after object creation
         /// </summary>
         private Dictionary<int, GeneticDriverNode> AllNodes;
+        private bool hasOutputs;
 
         public GeneticDriverDependencyTree(ChromosomeEditor partialGenes, int chromosomeIndex)
         {
@@ -84,9 +108,10 @@ namespace Genetics.ParameterizedGenomeGenerator
                 this.IntegrateGeneEditor(geneEditor, chromosomeIndex);
             }
         }
-        public GeneticDriverDependencyTree(GenomeEditor AllGenes)
+        public GeneticDriverDependencyTree(GenomeEditor AllGenes, bool recordOutputs = false)
         {
             this.AllNodes = new Dictionary<int, GeneticDriverNode>();
+            this.hasOutputs = recordOutputs;
 
             for (int i = 0; i < AllGenes.chromosomes.Length; i++)
             {
@@ -100,6 +125,17 @@ namespace Genetics.ParameterizedGenomeGenerator
             foreach (var geneEditor in AllGenes.geneInterpretors)
             {
                 this.IntegrateGeneEditor(geneEditor, -1);
+            }
+
+            if (hasOutputs)
+            {
+                foreach (var node in AllNodes.Values)
+                {
+                    foreach (var input in node.inputs)
+                    {
+                        input.outputs.Add(node);
+                    }
+                }
             }
         }
 
@@ -159,7 +195,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             {
                 if (!AllNodes.TryGetValue(driver.GetInstanceID(), out var node))
                 {
-                    node = new GeneticDriverNode(driver);
+                    node = new GeneticDriverNode(driver, hasOutputs);
                     AllNodes[driver.GetInstanceID()] = node;
                 }
                 yield return node;
