@@ -5,6 +5,10 @@
     /// </summary>
     public abstract class FloatGeneticDriver : GeneticDriver<float>
     {
-        public abstract bool FallsInRange(float min, float max, float value);
+        /// <summary>
+        /// returns whether or not to compare ranges as if they are integer values
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool CompareRangeAsIntegers();
     }
 }

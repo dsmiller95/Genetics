@@ -25,9 +25,9 @@ namespace Genetics.GeneticDrivers
             return $"{this.DriverName} between {min} and {max}";
         }
 
-        public override bool FallsInRange(float min, float max, float value)
+        public override bool CompareRangeAsIntegers()
         {
-            return value >= min && value <= max;
+            return false;
         }
 
         public override AbstractSummary GetSummarizer()

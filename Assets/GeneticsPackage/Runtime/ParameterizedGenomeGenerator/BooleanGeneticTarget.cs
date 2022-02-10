@@ -43,6 +43,11 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
+        public BooleanGeneticTarget Invert()
+        {
+            return new BooleanGeneticTarget(targetDriver, !targetValue);
+        }
+
         public bool Matches(CompiledGeneticDrivers geneticDrivers)
         {
             if (!geneticDrivers.TryGetGeneticData(targetDriver, out var boolValue))

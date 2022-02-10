@@ -37,35 +37,19 @@ namespace Genetics.ParameterizedGenomeGenerator
     /// binary serialization compatabile and unity inspector compatible
     /// </summary>
     [System.Serializable]
-    public struct TargetRange
-    {
-        public float minValue;
-        public float maxValue;
-
-        public TargetRange(float min, float max)
-        {
-            minValue = min;
-            maxValue = max;
-        }
-    }
-
-    /// <summary>
-    /// binary serialization compatabile and unity inspector compatible
-    /// </summary>
-    [System.Serializable]
     public class FloatGeneticTarget : ISerializable, IGeneticTarget
     {
         public FloatGeneticDriver targetDriver;
-        public List<TargetRange> targetRanges;
+        public BrokenFloatRange targetRanges;
         public GeneticDriver TargetDriver => targetDriver;
 
-        public FloatGeneticTarget()
+        private FloatGeneticTarget()
         {
         }
         public FloatGeneticTarget(FloatGeneticDriver driver, float min, float max)
         {
             this.targetDriver = driver;
-            targetRanges = new List<TargetRange> { new TargetRange(min, max) };
+            targetRanges = new BrokenFloatRange(min, max, driver.CompareRangeAsIntegers());
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -78,7 +62,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         // The special constructor is used to deserialize values.
         private FloatGeneticTarget(SerializationInfo info, StreamingContext context)
         {
-            targetRanges = info.GetValue("targetRanges", typeof(List<TargetRange>)) as List<TargetRange>;
+            targetRanges = info.GetValue("targetRanges", typeof(BrokenFloatRange)) as BrokenFloatRange;
             var savedReference = info.GetValue("driverReference", typeof(IDableSavedReference)) as IDableSavedReference;
             targetDriver = savedReference?.GetObject<GeneticDriver>() as FloatGeneticDriver;
             if (targetDriver == null)
@@ -87,16 +71,6 @@ namespace Genetics.ParameterizedGenomeGenerator
             }
         }
 
-        /// <summary>
-        /// merge the other target into this one, such that this target will now match based on the criteria it used to have
-        ///     and the criteria of the other target
-        /// </summary>
-        /// <param name="otherTarget"></param>
-        public void MergeIn(FloatGeneticTarget otherTarget)
-        {
-            //TODO: optimize
-            targetRanges.AddRange(otherTarget.targetRanges);
-        }
 
         public bool Matches(CompiledGeneticDrivers geneticDrivers)
         {
@@ -104,20 +78,13 @@ namespace Genetics.ParameterizedGenomeGenerator
             {
                 return false;
             }
-            foreach (var range in targetRanges)
-            {
-                if (targetDriver.FallsInRange(range.minValue, range.maxValue, floatValue))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return targetRanges.Matches(floatValue);
         }
 
         public string GetDescriptionOfTarget()
         {
             var description = new System.Text.StringBuilder();
-            foreach (var range in targetRanges)
+            foreach (var range in targetRanges.GetRepresentativeRange())
             {
                 description.Append(targetDriver.DescribeRange(range.minValue, range.maxValue));
                 description.Append(", ");
@@ -125,12 +92,20 @@ namespace Genetics.ParameterizedGenomeGenerator
             return description.ToString();
         }
 
+        public FloatGeneticTarget Invert()
+        {
+            return new FloatGeneticTarget
+            {
+                targetDriver = targetDriver,
+                targetRanges = targetRanges.Invert()
+            };
+        }
         public IGeneticTarget Clone()
         {
             return new FloatGeneticTarget
             {
                 targetDriver = targetDriver,
-                targetRanges = targetRanges.ToList()
+                targetRanges = targetRanges.Clone()
             };
         }
     }

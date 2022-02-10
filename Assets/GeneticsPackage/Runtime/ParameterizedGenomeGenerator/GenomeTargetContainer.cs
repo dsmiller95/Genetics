@@ -70,6 +70,56 @@ namespace Genetics.ParameterizedGenomeGenerator
             _targetsByDriver = null;
         }
 
+        public void MergeOtherIn(GenomeTargetContainer other)
+        {
+            foreach (var target in other.AllTargets)
+            {
+                this.IncludeTarget(target);
+            }
+        }
+
+        public void ExcludeTarget(IGeneticTarget target)
+        {
+            if (target is BooleanGeneticTarget boolTarget)
+            {
+                this.ExcludeTarget(boolTarget);
+            }
+            else if (target is FloatGeneticTarget floatTarget)
+            {
+                this.ExcludeTarget(floatTarget);
+            }
+            else
+            {
+                Debug.LogWarning("cannot exclude genetic target of type '" + target.GetType() + "'");
+            }
+        }
+        private void ExcludeTarget(BooleanGeneticTarget target)
+        {
+            var existing = targetsByDriver[target.TargetDriver] as BooleanGeneticTarget;
+            if (existing == null)
+            {
+                // there are no restrictions on this driver. add one which specificially excludes
+                targetsByDriver[target.targetDriver] = target.Invert();
+                return;
+            }
+            if (existing.targetValue == target.targetValue)
+            {
+                Debug.LogError($"Cannot exclude {target.targetValue} from {target.TargetDriver}, this would leave no valid values");
+                return;
+            }
+        }
+        private void ExcludeTarget(FloatGeneticTarget target)
+        {
+            var existing = targetsByDriver[target.TargetDriver] as FloatGeneticTarget;
+            if (existing == null)
+            {
+                // there are no restrictions on this driver. invert the excluded target, and set as the new requirement
+                targetsByDriver[target.TargetDriver] = target.Invert();
+                return;
+            }
+            existing.targetRanges.Exclude(target.targetRanges);
+        }
+
 
         /// <summary>
         /// "include" the range of genomes described in the given genetic target. this means that this container will now
@@ -115,7 +165,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                 // there are no restrictions on this driver, no need to add more
                 return;
             }
-            existing.MergeIn(target);
+            existing.targetRanges.MergeIn(target.targetRanges);
         }
     }
 }

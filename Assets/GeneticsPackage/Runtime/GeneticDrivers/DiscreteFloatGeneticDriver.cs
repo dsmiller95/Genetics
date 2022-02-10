@@ -35,14 +35,10 @@ namespace Genetics.GeneticDrivers
 
             return $"{this.DriverName}: {rangeClause}";
         }
-        public override bool FallsInRange(float min, float max, float value)
+        public override bool CompareRangeAsIntegers()
         {
-            var minInt = MinInt(min);
-            var maxInt = MaxInt(max);
-            var valueInt = Mathf.FloorToInt(value);
-            return valueInt >= minInt && valueInt <= maxInt;
+            return true;
         }
-
         private int MinInt(float min) => Mathf.CeilToInt(min);
         private int MaxInt(float max) => Mathf.FloorToInt(max);
 
