@@ -19,6 +19,18 @@ namespace Genetics.ParameterizedGenomeGenerator
         [UnityEngine.Tooltip("When true, chromosome copies will have different genes. when false, all chromosome copies will be identical")]
         public bool varianceOverHomologous = true;
 
+        public GenomeGenerator()
+        {
+
+        }
+
+        public GenomeGenerator(GenomeTargetContainer target, bool varianceOverHomologous = true)
+        {
+            this.aggregateTargets = target;
+            this.genomeTarget = target.targetGenome;
+            this.varianceOverHomologous = varianceOverHomologous;
+        }
+
         /// <summary>
         /// Generate genomes infinitely. Will retry randomly generating genomes, and only return those which match the
         ///     target definitions. Will only run the generation algorythm <paramref name="nullProcessingSpacer"/> times

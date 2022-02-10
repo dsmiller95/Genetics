@@ -74,7 +74,7 @@ namespace Genetics
         /// </summary>
         /// <param name="genomeData">the raw genome data</param>
         /// <returns>a set of drivers if fertile. if infertile, returns null</returns>
-        public CompiledGeneticDrivers CompileGenome(Genome genomeData)
+        public CompiledGeneticDrivers CompileGenome(Genome genomeData, bool lockDrivers = true)
         {
             var drivers = new CompiledGeneticDrivers();
 
@@ -101,7 +101,7 @@ namespace Genetics
                 }
             }
 
-            drivers.Lock();
+            if(lockDrivers) drivers.Lock();
             return drivers;
         }
     }
