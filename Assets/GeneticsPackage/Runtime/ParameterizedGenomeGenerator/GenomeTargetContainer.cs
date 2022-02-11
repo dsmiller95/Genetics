@@ -117,7 +117,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                 targetsByDriver[target.TargetDriver] = target.Invert();
                 return;
             }
-            existing.targetRanges.Exclude(target.targetRanges);
+            existing.Exclude(target);
         }
 
 
@@ -165,7 +165,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                 // there are no restrictions on this driver, no need to add more
                 return;
             }
-            existing.targetRanges.MergeIn(target.targetRanges);
+            existing.MergeIn(target);
         }
     }
 }

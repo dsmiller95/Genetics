@@ -33,8 +33,9 @@ namespace Genetics.ParameterizedGenomeGenerator
         /// <summary>
         /// managed to ensure the boundaries stay in order
         /// </summary>
+        [SerializeField]
         private List<FloatRangeBoundary> allBoundaries;
-        public BrokenFloatRange(bool discrete = false)
+        private BrokenFloatRange(bool discrete = false)
         {
             compareDiscrete = discrete;
         }
@@ -45,6 +46,20 @@ namespace Genetics.ParameterizedGenomeGenerator
             allBoundaries = new List<FloatRangeBoundary>();
             allBoundaries.Add(FloatRangeBoundary.MinBound(min));
             allBoundaries.Add(FloatRangeBoundary.MaxBound(max));
+        }
+
+        public BrokenFloatRange(IEnumerable<FloatRange> ranges, bool discrete = false)
+        {
+            compareDiscrete = discrete;
+
+            allBoundaries = new List<FloatRangeBoundary>();
+
+            foreach (var range in ranges)
+            {
+                allBoundaries.Add(FloatRangeBoundary.MinBound(range.minValue));
+                allBoundaries.Add(FloatRangeBoundary.MaxBound(range.maxValue));
+            }
+            allBoundaries = CollapseRedundantBounds(allBoundaries, !compareDiscrete);
         }
 
         private struct FloatRangeBoundary
@@ -93,6 +108,10 @@ namespace Genetics.ParameterizedGenomeGenerator
 
         public IEnumerable<FloatRange> GetRepresentativeRange()
         {
+            if(allBoundaries.Count <= 0)
+            {
+                yield break;
+            }
             FloatRangeBoundary lastBoundary = allBoundaries.First();
             foreach (var boundary in allBoundaries.Skip(1))
             {
@@ -124,13 +143,13 @@ namespace Genetics.ParameterizedGenomeGenerator
         public void MergeIn(BrokenFloatRange otherTarget)
         {
             allBoundaries.AddRange(otherTarget.allBoundaries);
-            allBoundaries = CollapseRedundantBounds(allBoundaries);
+            allBoundaries = CollapseRedundantBounds(allBoundaries, !compareDiscrete);
         }
 
         public void Exclude(BrokenFloatRange otherTarget)
         {
             allBoundaries.AddRange(otherTarget.allBoundaries.Select(x => x.Invert()));
-            allBoundaries = CollapseRedundantBounds(allBoundaries);
+            allBoundaries = CollapseRedundantBounds(allBoundaries, !compareDiscrete);
         }
 
         public BrokenFloatRange Invert()
@@ -139,7 +158,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             nextBoundaries.Add(FloatRangeBoundary.MinBound(float.NegativeInfinity));
             nextBoundaries.AddRange(allBoundaries.Select(x => x.Invert()));
             nextBoundaries.Add(FloatRangeBoundary.MaxBound(float.PositiveInfinity));
-            nextBoundaries = CollapseRedundantBounds(nextBoundaries);
+            nextBoundaries = CollapseRedundantBounds(nextBoundaries, !compareDiscrete);
 
             return new BrokenFloatRange
             {
@@ -148,7 +167,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             };
         }
 
-        private static List<FloatRangeBoundary> CollapseRedundantBounds(List<FloatRangeBoundary> unorderedBounds)
+        private static List<FloatRangeBoundary> CollapseRedundantBounds(List<FloatRangeBoundary> unorderedBounds, bool collapseZeroLength)
         {
             unorderedBounds.Sort(new FloatRangeBoundaryComparer());
 
@@ -171,8 +190,11 @@ namespace Genetics.ParameterizedGenomeGenerator
                     {
                         if(nextBoundaries[nextBoundaries.Count - 1].boundary == boundary.boundary)
                         {
-                            // if 0-length range, omit.
-                            nextBoundaries.RemoveAt(nextBoundaries.Count - 1);
+                            if(collapseZeroLength || float.IsNegativeInfinity(boundary.boundary) || float.IsPositiveInfinity(boundary.boundary))
+                            {
+                                // if 0-length range, omit.
+                                nextBoundaries.RemoveAt(nextBoundaries.Count - 1);
+                            }
                         }else
                         {
                             nextBoundaries.Add(boundary);

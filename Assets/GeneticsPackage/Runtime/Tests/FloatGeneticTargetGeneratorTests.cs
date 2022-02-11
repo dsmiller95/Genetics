@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Genetics.Genes;
+using Genetics.GeneticDrivers;
 using Genetics.ParameterizedGenomeGenerator;
 using NUnit.Framework;
 using UnityEngine;
@@ -14,8 +15,10 @@ namespace Genetics
         [Test]
         public void NeverGeneratesOutOfBounds()
         {
+            var driver = ScriptableObject.CreateInstance<ContinuousFloatGeneticDriver>();
             var generator = new FloatGeneticTargetGenerator
             {
+                driver = driver,
                 absoluteMin = 1f,
                 absoluteMax = 5f,
                 rangeMin = 1f,
@@ -26,7 +29,7 @@ namespace Genetics
 
             foreach (var result in generatedResult)
             {
-                var generatedRange = result.targetRanges.GetRepresentativeRange().ToList();
+                var generatedRange = result.BrokenRangeRepresentation.GetRepresentativeRange().ToList();
                 Assert.AreEqual(1, generatedRange.Count);
                 var range = generatedRange[0];
                 Assert.LessOrEqual(generator.absoluteMin, range.minValue, $"Expected generated min value {range.minValue} to be above absolute minimum {generator.absoluteMin}");
@@ -37,8 +40,10 @@ namespace Genetics
         [Test]
         public void ValueRangeAlwaysWithinRange()
         {
+            var driver = ScriptableObject.CreateInstance<ContinuousFloatGeneticDriver>();
             var generator = new FloatGeneticTargetGenerator
             {
+                driver = driver,
                 absoluteMin = 1f,
                 absoluteMax = 5f,
                 rangeMin = 1f,
@@ -49,7 +54,7 @@ namespace Genetics
 
             foreach (var result in generatedResult)
             {
-                var generatedRange = result.targetRanges.GetRepresentativeRange().ToList();
+                var generatedRange = result.BrokenRangeRepresentation.GetRepresentativeRange().ToList();
                 Assert.AreEqual(1, generatedRange.Count);
                 var range = generatedRange[0];
                 var actualRange = range.maxValue - range.minValue;
