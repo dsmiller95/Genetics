@@ -34,6 +34,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         private List<FloatRangeBoundary> allBoundaries;
         private BrokenFloatRange(bool discrete = false)
         {
+            // TODO: should just get rid of the discrete option, and create another representation that just uses integers
             compareDiscrete = discrete;
         }
         public BrokenFloatRange(float min, float max, bool discrete = false)
@@ -41,8 +42,8 @@ namespace Genetics.ParameterizedGenomeGenerator
             compareDiscrete = discrete;
 
             allBoundaries = new List<FloatRangeBoundary>();
-            allBoundaries.Add(FloatRangeBoundary.MinBound(min));
-            allBoundaries.Add(FloatRangeBoundary.MaxBound(max));
+            allBoundaries.Add(FloatRangeBoundary.MinBound(min, compareDiscrete));
+            allBoundaries.Add(FloatRangeBoundary.MaxBound(max, compareDiscrete));
         }
 
         public BrokenFloatRange(IEnumerable<FloatRange> ranges, bool discrete = false)
@@ -53,10 +54,10 @@ namespace Genetics.ParameterizedGenomeGenerator
 
             foreach (var range in ranges)
             {
-                allBoundaries.Add(FloatRangeBoundary.MinBound(range.minValue));
-                allBoundaries.Add(FloatRangeBoundary.MaxBound(range.maxValue));
+                allBoundaries.Add(FloatRangeBoundary.MinBound(range.minValue, compareDiscrete));
+                allBoundaries.Add(FloatRangeBoundary.MaxBound(range.maxValue, compareDiscrete));
             }
-            allBoundaries = CollapseRedundantBounds(allBoundaries, !compareDiscrete);
+            allBoundaries = CollapseRedundantBounds(allBoundaries, true);
         }
 
         private struct FloatRangeBoundary
@@ -73,16 +74,24 @@ namespace Genetics.ParameterizedGenomeGenerator
                 };
             }
 
-            public static FloatRangeBoundary MinBound(float bound)
+            public static FloatRangeBoundary MinBound(float bound, bool discrete)
             {
+                if (discrete)
+                {
+                    bound = BrokenFloatRange.CeilToIntSafe(bound);
+                }
                 return new FloatRangeBoundary
                 {
                     isMinBound = true,
                     boundary = bound
                 };
             }
-            public static FloatRangeBoundary MaxBound(float bound)
+            public static FloatRangeBoundary MaxBound(float bound, bool discrete)
             {
+                if (discrete)
+                {
+                    bound = ((float)BrokenFloatRange.FloorToIntSafe(bound)) + 1;
+                }
                 return new FloatRangeBoundary
                 {
                     isMinBound = false,
@@ -121,7 +130,7 @@ namespace Genetics.ParameterizedGenomeGenerator
                     yield return new FloatRange
                     {
                         minValue = lastBoundary.boundary,
-                        maxValue = boundary.boundary
+                        maxValue = boundary.boundary + (compareDiscrete ? -1 : 0)
                     };
                 }
                 lastBoundary = boundary;
@@ -140,22 +149,22 @@ namespace Genetics.ParameterizedGenomeGenerator
         public void MergeIn(BrokenFloatRange otherTarget)
         {
             allBoundaries.AddRange(otherTarget.allBoundaries);
-            allBoundaries = CollapseRedundantBounds(allBoundaries, !compareDiscrete);
+            allBoundaries = CollapseRedundantBounds(allBoundaries, true);
         }
 
         public void Exclude(BrokenFloatRange otherTarget)
         {
             allBoundaries.AddRange(otherTarget.allBoundaries.Select(x => x.Invert()));
-            allBoundaries = CollapseRedundantBounds(allBoundaries, !compareDiscrete);
+            allBoundaries = CollapseRedundantBounds(allBoundaries, true);
         }
 
         public BrokenFloatRange Invert()
         {
             var nextBoundaries = new List<FloatRangeBoundary>();
-            nextBoundaries.Add(FloatRangeBoundary.MinBound(float.NegativeInfinity));
+            nextBoundaries.Add(FloatRangeBoundary.MinBound(float.NegativeInfinity, compareDiscrete));
             nextBoundaries.AddRange(allBoundaries.Select(x => x.Invert()));
-            nextBoundaries.Add(FloatRangeBoundary.MaxBound(float.PositiveInfinity));
-            nextBoundaries = CollapseRedundantBounds(nextBoundaries, !compareDiscrete);
+            nextBoundaries.Add(FloatRangeBoundary.MaxBound(float.PositiveInfinity, compareDiscrete));
+            nextBoundaries = CollapseRedundantBounds(nextBoundaries, true);
 
             return new BrokenFloatRange
             {
@@ -227,10 +236,8 @@ namespace Genetics.ParameterizedGenomeGenerator
 
         private bool MatchesDiscrete(FloatRange range, int value)
         {
-            var minInt = CeilToIntSafe(range.minValue);
-            var maxInt = FloorToIntSafe(range.maxValue);
             var valueInt = FloorToIntSafe(value);
-            return valueInt >= minInt && valueInt <= maxInt;
+            return valueInt >= range.minValue && valueInt <= range.maxValue;
         }
 
         private static int CeilToIntSafe(float input)

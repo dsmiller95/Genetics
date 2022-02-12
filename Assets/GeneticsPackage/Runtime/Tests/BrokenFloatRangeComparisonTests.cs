@@ -104,6 +104,14 @@ namespace Genetics
             MaxBoundAssert(6f - delta, simpleTarget);
             AssertRangeCount(1, simpleTarget);
         }
+        [Test]
+        public void SamplesBoundariesOfPointDiscreteRange()
+        {
+            var simpleTarget = new BrokenFloatRange(3f, 3f, discrete: true);
+            MinBoundAssert(3f, simpleTarget);
+            MaxBoundAssert(4f - delta, simpleTarget);
+            AssertRangeCount(1, simpleTarget);
+        }
 
         [Test]
         public void MergesNonOverlappingRanges()
@@ -133,6 +141,18 @@ namespace Genetics
             AssertRangeCount(1, primeRange);
         }
         [Test]
+        public void MergesAdjacentPointDiscreteRanges()
+        {
+            var primeRange = new BrokenFloatRange(1, 1, discrete: true);
+            primeRange.MergeIn(new BrokenFloatRange(2, 2, discrete: true));
+
+            MinBoundAssert(1, primeRange);
+            AllMatchAssert(2, primeRange);
+            MaxBoundAssert(3 - delta, primeRange);
+
+            AssertRangeCount(1, primeRange);
+        }
+        [Test]
         public void MergesOverlappingRanges()
         {
             var primeRange = new BrokenFloatRange(1, 3.1f);
@@ -141,6 +161,17 @@ namespace Genetics
             MinBoundAssert(1, primeRange);
             AllMatchAssert(3, primeRange);
             MaxBoundAssert(9, primeRange);
+
+            AssertRangeCount(1, primeRange);
+        }
+        [Test]
+        public void MergesOverlappingPointDiscreteRanges()
+        {
+            var primeRange = new BrokenFloatRange(1, 1, discrete: true);
+            primeRange.MergeIn(new BrokenFloatRange(1.3f, 1.5f, discrete: true));
+
+            MinBoundAssert(1, primeRange);
+            MaxBoundAssert(2 - delta, primeRange);
 
             AssertRangeCount(1, primeRange);
         }
@@ -184,6 +215,50 @@ namespace Genetics
 
             NoMatchAssert(5, primeRange);
             NoMatchAssert(9, primeRange);
+
+            AssertRangeCount(1, primeRange);
+        }
+
+        [Test]
+        public void ExcludesNonOverlappingDiscretePoints()
+        {
+            var primeRange = new BrokenFloatRange(1, 1, discrete: true);
+            primeRange.Exclude(new BrokenFloatRange(3, 3, discrete: true));
+
+            MinBoundAssert(1, primeRange);
+            MaxBoundAssert(2 - delta, primeRange);
+
+            NoMatchAssert(3, primeRange);
+            NoMatchAssert(4 - delta, primeRange);
+
+            AssertRangeCount(1, primeRange);
+        }
+        [Test]
+        public void ExcludesOverlappingDiscretePoints()
+        {
+            var primeRange = new BrokenFloatRange(1, 2, discrete: true);
+            MinBoundAssert(1, primeRange);
+            AllMatchAssert(2, primeRange);
+            MaxBoundAssert(3 - delta, primeRange);
+
+            primeRange.Exclude(new BrokenFloatRange(2, 2, discrete: true));
+
+            MinBoundAssert(1, primeRange);
+            MaxBoundAssert(2 - delta, primeRange);
+            NoMatchAssert(3 - delta, primeRange);
+
+            AssertRangeCount(1, primeRange);
+        }
+        [Test]
+        public void ExcludesOverlappingDiscretePointAndWeirdRange()
+        {
+            var primeRange = new BrokenFloatRange(1, 2, discrete: true);
+            primeRange.Exclude(new BrokenFloatRange(1.9f, 2.5f, discrete: true));
+
+            MinBoundAssert(1, primeRange);
+            MaxBoundAssert(2 - delta, primeRange);
+
+            NoMatchAssert(3 - delta, primeRange);
 
             AssertRangeCount(1, primeRange);
         }
@@ -292,6 +367,41 @@ namespace Genetics
             MaxBoundAssert(6f - delta, simpleTarget);
 
             AssertRangeCount(1, simpleTarget);
+        }
+
+        [Test]
+        public void RepresentsDiscreteRangeSensibly()
+        {
+            var simpleTarget = new BrokenFloatRange(2.3f, 5.7f, discrete: true);
+
+            var resultRange = simpleTarget.GetRepresentativeRange().ToList();
+            Assert.AreEqual(1, resultRange.Count);
+
+
+            var expectedRange = new FloatRange
+            {
+                minValue = 3,
+                maxValue = 5
+            };
+            Assert.AreEqual(expectedRange.minValue, resultRange[0].minValue);
+            Assert.AreEqual(expectedRange.maxValue, resultRange[0].maxValue);
+        }
+        [Test]
+        public void RepresentsDiscretePointRangeSensibly()
+        {
+            var simpleTarget = new BrokenFloatRange(3f, 3f, discrete: true);
+
+            var resultRange = simpleTarget.GetRepresentativeRange().ToList();
+            Assert.AreEqual(1, resultRange.Count);
+
+
+            var expectedRange = new FloatRange
+            {
+                minValue = 3,
+                maxValue = 3
+            };
+            Assert.AreEqual(expectedRange.minValue, resultRange[0].minValue);
+            Assert.AreEqual(expectedRange.maxValue, resultRange[0].maxValue);
         }
 
     }
