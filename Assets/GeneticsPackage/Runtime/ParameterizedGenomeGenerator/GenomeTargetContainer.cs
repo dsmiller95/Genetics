@@ -38,7 +38,7 @@ namespace Genetics.ParameterizedGenomeGenerator
 
         public bool DriversMatch(CompiledGeneticDrivers drivers)
         {
-            foreach (var target in booleanTargets.Cast<IGeneticTarget>().Concat(floatTargets))
+            foreach (var target in AllTargets)
             {
                 if (!target.Matches(drivers))
                 {
@@ -99,7 +99,9 @@ namespace Genetics.ParameterizedGenomeGenerator
             if (existing == null)
             {
                 // there are no restrictions on this driver. add one which specificially excludes
-                targetsByDriver[target.targetDriver] = target.Invert();
+                var newTarget = target.Invert();
+                booleanTargets.Add(newTarget);
+                targetsByDriver[target.targetDriver] = newTarget;
                 return;
             }
             if (existing.targetValue == target.targetValue)
@@ -114,10 +116,45 @@ namespace Genetics.ParameterizedGenomeGenerator
             if (existing == null)
             {
                 // there are no restrictions on this driver. invert the excluded target, and set as the new requirement
-                targetsByDriver[target.TargetDriver] = target.Invert();
+                var newTarget = target.Invert();
+                floatTargets.Add(newTarget);
+                targetsByDriver[target.TargetDriver] = newTarget;
                 return;
             }
             existing.Exclude(target);
+        }
+
+        /// <summary>
+        /// Set this target as the only valid range for its specific driver
+        /// </summary>
+        /// <param name="target"></param>
+        public void SetExclusiveTarget(IGeneticTarget target)
+        {
+            if (target is FloatGeneticTarget floatTarget)
+            {
+                var index = floatTargets.FindIndex(x => x.targetDriver.DriverName == floatTarget.targetDriver.DriverName);
+                if (index >= 0)
+                {
+                    floatTargets[index] = floatTarget;
+                }
+                else
+                {
+                    floatTargets.Add(floatTarget);
+                }
+            }
+            if (target is BooleanGeneticTarget boolTarget)
+            {
+                var index = booleanTargets.FindIndex(x => x.targetDriver.DriverName == boolTarget.targetDriver.DriverName);
+                if (index >= 0)
+                {
+                    booleanTargets[index] = boolTarget;
+                }
+                else
+                {
+                    booleanTargets.Add(boolTarget);
+                }
+            }
+            targetsByDriver[target.TargetDriver] = target;
         }
 
 

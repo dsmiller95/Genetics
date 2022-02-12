@@ -37,23 +37,22 @@ namespace Genetics.ParameterizedGenomeGenerator
     /// binary serialization compatabile and unity inspector compatible
     /// </summary>
     [System.Serializable]
-    public class FloatGeneticTarget : ISerializable, IGeneticTarget, ISerializationCallbackReceiver
+    public class FloatGeneticTarget : ISerializable, IGeneticTarget
     {
         public FloatGeneticDriver targetDriver;
         /// <summary>
         /// used for serialization in unity
         /// </summary>
         [SerializeField]
-        private List<FloatRange> targetRanges;
+        public List<FloatRange> targetRanges;
 
-        [SerializeField]
-        [HideInInspector]
-        private int serializedVersion = 0;
-
-        public BrokenFloatRange BrokenRangeRepresentation
+        private BrokenFloatRange BrokenRangeRepresentation
         {
-            get;
-            private set;
+            get => new BrokenFloatRange(targetRanges, targetDriver.CompareRangeAsIntegers());
+            set
+            {
+                targetRanges = value.GetRepresentativeRange().ToList();
+            }
         }
         public GeneticDriver TargetDriver => targetDriver;
 
@@ -63,12 +62,12 @@ namespace Genetics.ParameterizedGenomeGenerator
         public FloatGeneticTarget(FloatGeneticDriver driver, float min, float max)
         {
             this.targetDriver = driver;
-            BrokenRangeRepresentation = new BrokenFloatRange(min, max, driver.CompareRangeAsIntegers());
+            targetRanges = new List<FloatRange> { new FloatRange(min, max) };
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("targetRanges", BrokenRangeRepresentation);
+            info.AddValue("targetRanges", targetRanges);
             info.AddValue("driverReference", new IDableSavedReference(targetDriver));
         }
 
@@ -76,7 +75,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         // The special constructor is used to deserialize values.
         private FloatGeneticTarget(SerializationInfo info, StreamingContext context)
         {
-            BrokenRangeRepresentation = info.GetValue("targetRanges", typeof(BrokenFloatRange)) as BrokenFloatRange;
+            targetRanges = info.GetValue("targetRanges", typeof(List<FloatRange>)) as List<FloatRange>;
             var savedReference = info.GetValue("driverReference", typeof(IDableSavedReference)) as IDableSavedReference;
             targetDriver = savedReference?.GetObject<GeneticDriver>() as FloatGeneticDriver;
             if (targetDriver == null)
@@ -98,7 +97,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         public string GetDescriptionOfTarget()
         {
             var description = new System.Text.StringBuilder();
-            foreach (var range in BrokenRangeRepresentation.GetRepresentativeRange())
+            foreach (var range in targetRanges)
             {
                 description.Append(targetDriver.DescribeRange(range.minValue, range.maxValue));
                 description.Append(", ");
@@ -108,12 +107,16 @@ namespace Genetics.ParameterizedGenomeGenerator
 
         public void Exclude(FloatGeneticTarget other)
         {
-            BrokenRangeRepresentation.Exclude(other.BrokenRangeRepresentation);
+            var myRange = BrokenRangeRepresentation;
+            myRange.Exclude(other.BrokenRangeRepresentation);
+            BrokenRangeRepresentation = myRange;
         }
 
         public void MergeIn(FloatGeneticTarget other)
         {
-            BrokenRangeRepresentation.MergeIn(other.BrokenRangeRepresentation);
+            var myRange = BrokenRangeRepresentation;
+            myRange.MergeIn(other.BrokenRangeRepresentation);
+            BrokenRangeRepresentation = myRange;
         }
 
         public FloatGeneticTarget Invert()
@@ -129,22 +132,8 @@ namespace Genetics.ParameterizedGenomeGenerator
             return new FloatGeneticTarget
             {
                 targetDriver = targetDriver,
-                BrokenRangeRepresentation = BrokenRangeRepresentation.Clone()
+                targetRanges = targetRanges.ToList()
             };
-        }
-
-        public void OnBeforeSerialize()
-        {
-            if (BrokenRangeRepresentation != null)
-            {
-                targetRanges = BrokenRangeRepresentation.GetRepresentativeRange().ToList();
-                serializedVersion = 1;
-            }
-        }
-
-        public void OnAfterDeserialize()
-        {
-            BrokenRangeRepresentation = new BrokenFloatRange(targetRanges, targetDriver?.CompareRangeAsIntegers() ?? true); // default to true, avoids deleting the default range
         }
     }
 }

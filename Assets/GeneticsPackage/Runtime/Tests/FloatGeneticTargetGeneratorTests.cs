@@ -29,7 +29,7 @@ namespace Genetics
 
             foreach (var result in generatedResult)
             {
-                var generatedRange = result.BrokenRangeRepresentation.GetRepresentativeRange().ToList();
+                var generatedRange = result.targetRanges;
                 Assert.AreEqual(1, generatedRange.Count);
                 var range = generatedRange[0];
                 Assert.LessOrEqual(generator.absoluteMin, range.minValue, $"Expected generated min value {range.minValue} to be above absolute minimum {generator.absoluteMin}");
@@ -54,7 +54,7 @@ namespace Genetics
 
             foreach (var result in generatedResult)
             {
-                var generatedRange = result.BrokenRangeRepresentation.GetRepresentativeRange().ToList();
+                var generatedRange = result.targetRanges;
                 Assert.AreEqual(1, generatedRange.Count);
                 var range = generatedRange[0];
                 var actualRange = range.maxValue - range.minValue;

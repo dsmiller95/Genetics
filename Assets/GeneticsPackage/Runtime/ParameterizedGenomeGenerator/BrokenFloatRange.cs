@@ -1,8 +1,5 @@
-﻿using Dman.ObjectSets;
-using Genetics.GeneticDrivers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace Genetics.ParameterizedGenomeGenerator
@@ -98,7 +95,7 @@ namespace Genetics.ParameterizedGenomeGenerator
         {
             public int Compare(FloatRangeBoundary x, FloatRangeBoundary y)
             {
-                if(x.boundary != y.boundary)
+                if (x.boundary != y.boundary)
                 {
                     return x.boundary < y.boundary ? -1 : 1;
                 }
@@ -108,7 +105,7 @@ namespace Genetics.ParameterizedGenomeGenerator
 
         public IEnumerable<FloatRange> GetRepresentativeRange()
         {
-            if(allBoundaries.Count <= 0)
+            if (allBoundaries.Count <= 0)
             {
                 yield break;
             }
@@ -186,20 +183,19 @@ namespace Genetics.ParameterizedGenomeGenerator
                 else
                 {
                     currentDepth--;
-                    if (currentDepth == 0)
+                    if (currentDepth != 0)
                     {
-                        if(nextBoundaries[nextBoundaries.Count - 1].boundary == boundary.boundary)
-                        {
-                            if(collapseZeroLength || float.IsNegativeInfinity(boundary.boundary) || float.IsPositiveInfinity(boundary.boundary))
-                            {
-                                // if 0-length range, omit.
-                                nextBoundaries.RemoveAt(nextBoundaries.Count - 1);
-                            }
-                        }else
-                        {
-                            nextBoundaries.Add(boundary);
-                        }
+                        continue;
                     }
+                    if (
+                        nextBoundaries[nextBoundaries.Count - 1].boundary == boundary.boundary &&
+                        (collapseZeroLength || float.IsNegativeInfinity(boundary.boundary) || float.IsPositiveInfinity(boundary.boundary)))
+                    {
+                        // if 0-length range, omit and don't add this end bound
+                        nextBoundaries.RemoveAt(nextBoundaries.Count - 1);
+                        continue;
+                    }
+                    nextBoundaries.Add(boundary);
                 }
             }
 
