@@ -11,6 +11,11 @@ namespace Genetics
         public abstract void SummarizeValue(AbstractSummary summarizer, CompiledGeneticDrivers valueSet);
 
         public abstract string NameState(object state);
+
+        public override string ToString()
+        {
+            return DriverName;
+        }
     }
     public abstract class GeneticDriver<T> : GeneticDriver
     {
