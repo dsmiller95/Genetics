@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.0] - 2022-04-17
+
+Add set-like operations on genetic targets
+
 ## [0.1.1] - 2021-02-07
 
 Fixed chromosome generation bug.

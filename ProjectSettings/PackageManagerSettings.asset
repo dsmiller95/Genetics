@@ -28,6 +28,7 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.cysharp.unitask
     - com.dman.object-sets
     - com.dman.utilities
     - com.openupm
@@ -42,6 +43,7 @@ MonoBehaviour:
       m_Name: package.openupm.com
       m_Url: https://package.openupm.com
       m_Scopes:
+      - com.cysharp.unitask
       - com.dman.object-sets
       - com.dman.utilities
       - com.openupm
@@ -51,6 +53,7 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
+    - com.cysharp.unitask
     - com.dman.object-sets
     - com.dman.utilities
     - com.openupm
