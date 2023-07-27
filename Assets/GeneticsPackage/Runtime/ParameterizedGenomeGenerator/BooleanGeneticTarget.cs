@@ -31,6 +31,7 @@ namespace Genetics.ParameterizedGenomeGenerator
             info.AddValue("targetValue", targetValue);
             info.AddValue("driverReference", new IDableSavedReference(targetDriver));
         }
+        // TODO: using the RegistryRegistry here prevents usage of binary serialization in the editor, via something like the odin serializer/inspector 
         // The special constructor is used to deserialize values.
         private BooleanGeneticTarget(SerializationInfo info, StreamingContext context)
         {
